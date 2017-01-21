@@ -7,6 +7,7 @@ public enum CacheEnum {
 
     GENERIC,//Cache without expiration & entry limit
     POIS_BY_NAME,
+    POIS_BY_ID,
     POIS_MINUBE,
     LIMITED_CACHE(-1, -1, 10),//Cache with limit of 10 elements & no expiration
     EXAMPLE(-1, 10, -1);//Cache with expiration on 10 seconds & no entry limit

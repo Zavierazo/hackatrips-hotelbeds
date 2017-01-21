@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.guava.GuavaCache;
@@ -22,7 +21,7 @@ import com.google.common.cache.Cache;
 import com.hacktrips.enums.CacheEnum;
 import com.hacktrips.model.minube.POIData;
 import com.hacktrips.service.MiNubeService;
-import info.debatty.java.stringsimilarity.OptimalStringAlignment;
+import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -33,6 +32,7 @@ public class MinubeController {
     private MiNubeService minubeService;
     @Autowired
     private CacheManager cacheManager;
+    private static final NormalizedLevenshtein l = new NormalizedLevenshtein();
 
     @RequestMapping(method = RequestMethod.GET, value = "/pois", produces = {
             MediaType.APPLICATION_JSON_VALUE
@@ -46,9 +46,9 @@ public class MinubeController {
         Cache<Object, Object> cache = guavaCache.getNativeCache();
         Map<Object, Object> cacheMap = cache.asMap();
         for (Integer category : MiNubeService.USED_CATEGORYS) {
-            loop: for (int page = 1; page < 999; page++) {
+            loop: for (int page = 0; page < 999; page++) {
                 try {
-                    POIData[] rs = minubeService.getPage(latitude, longitude, page, category);
+                    POIData[] rs = minubeService.getPage(latitude, longitude, page, category, 50000);
                     for (POIData poi : rs) {
                         pois.add(poi);
                         cacheMap.put(poi.getName().toLowerCase(), poi);
@@ -59,6 +59,38 @@ public class MinubeController {
                 }
             }
         }
+        return pois;
+    }
+
+
+    @RequestMapping(method = RequestMethod.GET, value = "/poisByName", produces = {
+            MediaType.APPLICATION_JSON_VALUE
+    })
+    @ResponseBody
+    public List<POIData> byLatitude(@RequestParam String name) {
+        List<POIData> pois = new ArrayList<>();
+        GuavaCache guavaCache = (GuavaCache) cacheManager.getCache(CacheEnum.POIS_BY_NAME.name());
+        Cache<Object, Object> cache = guavaCache.getNativeCache();
+        Map<Object, Object> cacheMap = cache.asMap();
+        POIData padre = (POIData) cacheMap.get(name.toLowerCase());
+        for (Integer category : MiNubeService.USED_CATEGORYS) {
+            loop: for (int page = 0; page < 999; page++) {
+                try {
+                    POIData[] rs = minubeService.getPage(padre.getLatitude(), padre.getLongitude(), page, category, 10000);
+                    for (POIData poi : rs) {
+                        pois.add(poi);
+                        cacheMap.put(poi.getName().toLowerCase(), poi);
+                    }
+                } catch (Exception e) {
+                    log.debug("Exception on page {}", page, e);
+                    break loop;
+                }
+            }
+        }
+        for (POIData data : pois) {
+            data.setProb(null);
+        }
+        Collections.sort(pois, new DistanceComparator());
         return pois;
     }
 
@@ -79,6 +111,7 @@ public class MinubeController {
                 splitedText.add(splited);
             }
         }
+        int minOccurences = splitedText.size() / 2;
         int maxOccurences = 0;
         for (Object key : cacheMap.keySet()) {
             if (key instanceof String) {
@@ -92,7 +125,7 @@ public class MinubeController {
                             occurrences++;
                         }
                     }
-                    if (occurrences > 0) {
+                    if (occurrences > minOccurences) {
                         if (!partialMatch.containsKey(occurrences)) {
                             partialMatch.put(occurrences, new ArrayList<>());
                         }
@@ -104,29 +137,36 @@ public class MinubeController {
                 }
             }
         }
-        OptimalStringAlignment l = new OptimalStringAlignment();
+
         if (!matchFullKeys.isEmpty()) {
             for (String key : matchFullKeys) {
-                POIData data = (POIData) cacheMap.get(key);
-                //                data.setProb(l.distance(text.toLowerCase(), key.toLowerCase()));
-                data.setProb(StringUtils.getJaroWinklerDistance(text.toLowerCase(), key.toLowerCase()));
-                pois.add(data);
+                fillPOIData(text, pois, cacheMap, key);
             }
         } else if (!partialMatch.isEmpty()) {
             for (int i = maxOccurences; i > 0; i--) {
                 if (partialMatch.containsKey(i)) {
                     for (String key : partialMatch.get(i)) {
-                        POIData data = (POIData) cacheMap.get(key);
-                        //                        data.setProb(l.distance(text.toLowerCase(), key.toLowerCase()));
-                        data.setProb(StringUtils.getJaroWinklerDistance(text.toLowerCase(), key.toLowerCase()));
-                        pois.add(data);
+                        fillPOIData(text, pois, cacheMap, key);
                     }
                 }
+            }
+        } else {
+            for (Object key : cacheMap.keySet()) {
+                fillPOIData(text, pois, cacheMap, key);
             }
         }
         Collections.sort(pois, new ProbComparator());
         return pois;
     }
+
+    private void fillPOIData(String text, List<POIData> pois, Map<Object, Object> cacheMap, Object key) {
+        String keyString = (String) key;
+        POIData data = (POIData) cacheMap.get(key);
+        data.setProb(l.distance(text.toLowerCase(), keyString.toLowerCase()));
+        data.setDistance(null);
+        pois.add(data);
+    }
+
 
 
     private class ProbComparator implements Comparator<POIData> {
@@ -136,4 +176,11 @@ public class MinubeController {
         }
     }
 
+
+    private class DistanceComparator implements Comparator<POIData> {
+        @Override
+        public int compare(POIData a, POIData b) {
+            return a.getDistance().compareTo(b.getDistance());
+        }
+    }
 }
