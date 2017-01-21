@@ -32,21 +32,43 @@ public class CartoService {
 
 	private static final String URL = "https://hackatrips11.carto.com/api/v2/sql";
 	private static final String API_KEY = "dc2d2b3c91dd85589dbb54d85b51ea9f5f35ffdd";
+	private static final String DATA_SET_01 = "data_group06_mass";
 
 	@Autowired
 	private RestTemplate restTemplate;
 
 	public Boolean uploadData(List<POIData> pois) {
-		CartoPostgreSQL cartoSQL = new CartoPostgreSQL("data_group06_mass", pois);
-		cartoSQL.setTypeSQL(TypeSQL.CREATE);
+		CartoPostgreSQL cartoSQL = new CartoPostgreSQL(DATA_SET_01, pois);
 		// Table creation only once time
-		uploadData(cartoSQL.generateDataSet());
-		
+		cartoSQL.setTypeSQL(TypeSQL.CREATE);
+		if (!existsDataset(DATA_SET_01)) {
+			uploadData(cartoSQL.generateDataSet());
+		}
 		// Inserts
 		cartoSQL.setTypeSQL(TypeSQL.INSERT);
-		return uploadData(cartoSQL.generateDataSet());
+		uploadData(cartoSQL.generateDataSet());
+
+		// Check queue for cartesian objects TODO with queue
+		// if (!cartoSQL.getQueueToTables().isEmpty()) {
+		// cartoSQL.setTypeSQL(TypeSQL.CREATE);
+		// uploadData(cartoSQL.generateDataSet());
+		//
+		// cartoSQL.setTypeSQL(TypeSQL.INSERT);
+		// uploadData(cartoSQL.generateDataSet());
+		// }
+		return true;
 	}
+
 	public Boolean uploadData(String dataSet) {
+		return cartoCall(dataSet);
+	}
+
+	public Boolean existsDataset(String dataSet) {
+		String select = "SELECT * FROM " + dataSet;
+		return cartoCall(select);
+	}
+
+	private Boolean cartoCall(String dataSet) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(URL).queryParam("api_key", API_KEY);
@@ -59,7 +81,8 @@ public class CartoService {
 			HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map,
 					headers);
 			System.out.println(dataSet);
-			//ResponseEntity<String> response = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST, request, String.class);
+			ResponseEntity<String> response = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST,
+					request, String.class);
 		} catch (Exception e) {
 			log.error("review dataset", e);
 			return false;

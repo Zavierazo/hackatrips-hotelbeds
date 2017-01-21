@@ -288,9 +288,6 @@ public class MinubeController {
             }
         }
         Collections.sort(pois, new ProbComparator());
-
-        buildCartoService().uploadData(pois);
-
         return pois;
     }
 
