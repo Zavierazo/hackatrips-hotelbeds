@@ -85,7 +85,6 @@
     export default {
         props: ['value', 'placeholder'],
         mounted: function () {
-
 //            anime({
 //                targets: "[data-function='record--box']",
 //                loop: true,
@@ -107,12 +106,17 @@
         methods: {
             record: function () {
             },
+            performSearch: function(ev) {
+                const target = ev.target
+                const textString = target.innerHTML
+
+                this.$router.push({name: 'results', params: {text: textString}})
+            },
             autosuggest: function() {
                 const input = this.$refs['micSearch']
                 const resultContainer = this.$refs['autosuggestResults']
 
                 textInput.send(input.value).then( (response) => {
-
                     const results = response.data
                     const maxResults = 10
 
@@ -123,11 +127,12 @@
                                 const listItem = window.document.createElement('li')
                                 listItem.innerHTML = results[i].name
                                 listItem.classList.add('listitem')
+                                listItem.addEventListener('click', this.performSearch, false)
                                 resultContainer.appendChild(listItem)
                         }
                     }
 
-                    console.log(response)
+                    //console.log(response)
                 }).catch ( (error) => {
                     console.log(error)
                 })

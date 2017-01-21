@@ -58,6 +58,7 @@
     "vue-i18n-plugin": "^0.2.2",
     "vue-loader": "^10.0.0",
     "vue-router": "^2.1.1",
+    "vue-slider-component": "^2.1.2",
     "vue-template-compiler": "^2.1.0",
     "vuex": "^2.1.1",
     "winston": "^2.2.0"
