@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.cache.Cache;
+import com.hacktrips.config.contamination.ContaminationData;
 import com.hacktrips.enums.CacheEnum;
 import com.hacktrips.model.minube.POIData;
 import com.hacktrips.service.CartoService;
+import com.hacktrips.service.ContaminationService;
 import com.hacktrips.service.MiNubeService;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import lombok.extern.slf4j.Slf4j;
@@ -35,14 +37,17 @@ public class MinubeController {
     private MiNubeService minubeService;
     @Autowired
     private CacheManager cacheManager;
-    
-	@Autowired
-	ObjectFactory<CartoService> cartoFactory;
+    @Autowired
+    private ContaminationService contaminationService;
 
-	CartoService buildCartoService() {
-		return cartoFactory.getObject();
-	}
-	
+
+    @Autowired
+    ObjectFactory<CartoService> cartoFactory;
+
+    CartoService buildCartoService() {
+        return cartoFactory.getObject();
+    }
+
     private static final NormalizedLevenshtein l = new NormalizedLevenshtein();
 
     @CrossOrigin(origins = {
@@ -106,12 +111,16 @@ public class MinubeController {
         }
         for (POIData data : pois) {
             data.setProb(null);
+            ContaminationData contaminationData = contaminationService.getContaminationInterpolation(data.getLatitude(), data.getLongitude());
+            if (contaminationData != null) {
+                data.setContaminationByHour(contaminationData.getContaminationByHour());
+            }
         }
         Collections.sort(pois, new DistanceComparator());
-        
+
         // Upload data to Carto
         buildCartoService().uploadData(pois);
-        
+
         return pois;
     }
 
@@ -180,9 +189,9 @@ public class MinubeController {
             }
         }
         Collections.sort(pois, new ProbComparator());
-        
+
         buildCartoService().uploadData(pois);
-        
+
         return pois;
     }
 

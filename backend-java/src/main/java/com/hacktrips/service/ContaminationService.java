@@ -30,14 +30,16 @@ public class ContaminationService {
         Double lessDistance = Double.MAX_VALUE;
         for (Object data : cacheMap.values()) {
             ContaminationData cachedData = (ContaminationData) data;
-            Double distance = Utils.distance(latitude, longitude, cachedData.getLatitude(), cachedData.getLongitude());
+            Double distance = Utils.distance(latitude, cachedData.getLatitude(), longitude, cachedData.getLongitude());
             if (distance < lessDistance) {
                 lessDistance = distance;
                 lessDistanceData = cachedData;
             }
         }
         ContaminationData contamination = new ContaminationData(latitude, longitude);
-        contamination.setContaminationByHour(lessDistanceData.getContaminationByHour());
+        if (lessDistanceData != null) {
+            contamination.setContaminationByHour(lessDistanceData.getContaminationByHour());
+        }
         return contamination;
     }
 
@@ -52,7 +54,51 @@ public class ContaminationService {
         double maxDistance = Double.MIN_VALUE;
         for (Object data : cacheMap.values()) {
             ContaminationData cachedData = (ContaminationData) data;
-            Double distance = Utils.distance(latitude, longitude, cachedData.getLatitude(), cachedData.getLongitude());
+            Double distance = Utils.distance(latitude, cachedData.getLatitude(), longitude, cachedData.getLongitude());
+            if (distance < 5000) {
+                cerca.add(cachedData);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                }
+                if (distance > maxDistance) {
+                    maxDistance = distance;
+                }
+            }
+        }
+        for (int hora = 1; hora <= 24; hora++) {
+            double weight = 0.0;
+            double size = 0.0;
+            for (ContaminationData data : cerca) {
+                Double distance = Utils.distance(latitude, data.getLatitude(), longitude, data.getLongitude());
+                double normal = normalizedValue(distance, maxDistance, minDistance);
+                size += normal;
+                weight += data.getContaminationByHour().get(hora) * normal;
+            }
+            if (size > 0.0) {
+                contamination.getContaminationByHour().put(hora, weight / size);
+            } else {
+                contamination.getContaminationByHour().put(hora, weight);
+            }
+        }
+        return contamination;
+    }
+
+    private double normalizedValue(double value, double max, double min) {
+        return (value - min) / (max - min);
+    }
+
+    public ContaminationData getContaminationMean(Double latitude, Double longitude) {
+        ContaminationData contamination = new ContaminationData(latitude, longitude);
+        GuavaCache guavaCache = (GuavaCache) cacheManager.getCache(CacheEnum.CONTAMINATION_CACHE);
+        Cache<Object, Object> cache = guavaCache.getNativeCache();
+        Map<Object, Object> cacheMap = cache.asMap();
+        //Map<String, ContaminationData>
+        List<ContaminationData> cerca = new ArrayList<>();
+        double minDistance = Double.MAX_VALUE;
+        double maxDistance = Double.MIN_VALUE;
+        for (Object data : cacheMap.values()) {
+            ContaminationData cachedData = (ContaminationData) data;
+            Double distance = Utils.distance(latitude, cachedData.getLatitude(), longitude, cachedData.getLongitude());
             if (distance < 5000) {
                 cerca.add(cachedData);
                 if (distance < minDistance) {
@@ -70,11 +116,6 @@ public class ContaminationService {
             }
             contamination.getContaminationByHour().put(hora, weight / cerca.size());
         }
-
         return contamination;
-    }
-
-    private double normalizedValue(double value, double max, double min) {
-        return (value - min) / (max - min);
     }
 }
