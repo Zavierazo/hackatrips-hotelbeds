@@ -70,9 +70,9 @@
                 description: true,
                 search: true,
                 tiles_loader: true,
-                center_lat: 0,
-                center_lon: 0,
-                zoom: 2
+                center_lat: 40.418709,
+                center_lon: -3.703277,
+                zoom: 10
             })
                 .done(function (vis, layers) {
                     // layer 0 is the base layer, layer 1 is cartodb layer
