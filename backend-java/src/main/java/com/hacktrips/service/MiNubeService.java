@@ -63,6 +63,7 @@ public class MiNubeService {
                 .queryParam("latitude", latitude)
                 .queryParam("longitude", longitude)
                 .queryParam("max_distance", "50000")
+                .queryParam("min_distance", "0")
                 .queryParam("page", page)
                 .queryParam("api_key", "cbw3xX5uMmVh7ZXu");
         if (category != null) {

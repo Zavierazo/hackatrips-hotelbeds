@@ -1,10 +1,13 @@
 package com.hacktrips.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.guava.GuavaCache;
@@ -19,10 +22,11 @@ import com.google.common.cache.Cache;
 import com.hacktrips.enums.CacheEnum;
 import com.hacktrips.model.minube.POIData;
 import com.hacktrips.service.MiNubeService;
+import info.debatty.java.stringsimilarity.OptimalStringAlignment;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/minube")
 @Slf4j
 public class MinubeController {
     @Autowired
@@ -100,21 +104,36 @@ public class MinubeController {
                 }
             }
         }
+        OptimalStringAlignment l = new OptimalStringAlignment();
         if (!matchFullKeys.isEmpty()) {
             for (String key : matchFullKeys) {
-                pois.add((POIData) cacheMap.get(key));
+                POIData data = (POIData) cacheMap.get(key);
+                //                data.setProb(l.distance(text.toLowerCase(), key.toLowerCase()));
+                data.setProb(StringUtils.getJaroWinklerDistance(text.toLowerCase(), key.toLowerCase()));
+                pois.add(data);
             }
         } else if (!partialMatch.isEmpty()) {
             for (int i = maxOccurences; i > 0; i--) {
                 if (partialMatch.containsKey(i)) {
                     for (String key : partialMatch.get(i)) {
-                        pois.add((POIData) cacheMap.get(key));
+                        POIData data = (POIData) cacheMap.get(key);
+                        //                        data.setProb(l.distance(text.toLowerCase(), key.toLowerCase()));
+                        data.setProb(StringUtils.getJaroWinklerDistance(text.toLowerCase(), key.toLowerCase()));
+                        pois.add(data);
                     }
                 }
             }
         }
+        Collections.sort(pois, new ProbComparator());
         return pois;
     }
 
+
+    private class ProbComparator implements Comparator<POIData> {
+        @Override
+        public int compare(POIData a, POIData b) {
+            return b.getProb().compareTo(a.getProb());
+        }
+    }
 
 }
