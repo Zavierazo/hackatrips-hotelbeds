@@ -31,22 +31,13 @@ public class PlacesService {
     private CacheManager cacheManager;
 	
     private static final String LOG_TAG = "HackatonApp";
-
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
-
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
     private static final String TYPE_DETAILS = "/details";
-    private static final String TYPE_SEARCH = "/search";
-
+    private static final String TYPE_SEARCH = "/nearbysearch";
     private static final String OUT_JSON = "/json";
+    private static final String API_KEY = "AIzaSyBl1t15EoJCH0oIhZzsJbLRbWiWIYb3Li8";
 
-    private static final String API_KEY = "AIzaSyA-zQrBxeMqj-KT36HcZjY1cdjBf2ABaxM";
-
-    
-    //String placeId = "ChIJN1t_tDeuEmsRUsoyG83frY4";
-    //https://maps.googleapis.com/maps/api/place/radarsearch/json?location=51.503186,-0.126446&radius=5000&types=museum&key=YOUR_API_KEY
-    //https://maps.googleapis.com/maps/api/place/details/json?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4&key=YOUR_API_KEY
-    
     public static ArrayList<Place> autocomplete(String input) {
         ArrayList<Place> resultList = null;
 
@@ -98,6 +89,8 @@ public class PlacesService {
 
     public static ArrayList<Place> search(String keyword, double latitud, double longitud, int radio) {
         ArrayList<Place> resultList = null;
+        String types="food";
+        String name="cruise";
 
         HttpURLConnection conn = null;
         StringBuilder jsonResults = new StringBuilder();
@@ -105,12 +98,12 @@ public class PlacesService {
             StringBuilder sb = new StringBuilder(PLACES_API_BASE);
             sb.append(TYPE_SEARCH);
             sb.append(OUT_JSON);
-            sb.append("?sensor=false");
-            sb.append("&key=" + API_KEY);
-            sb.append("&keyword=" + URLEncoder.encode(keyword, "utf8"));
-            sb.append("&location=" + String.valueOf(latitud) + "," + String.valueOf(longitud));
+            sb.append("?location=" + String.valueOf(latitud) + "," + String.valueOf(longitud));
             sb.append("&radius=" + String.valueOf(radio));
-
+            sb.append("&types=" + String.valueOf(types));
+            sb.append("&name=" + String.valueOf(name));
+            sb.append("&key=" + API_KEY);
+            
             URL url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
             InputStreamReader in = new InputStreamReader(conn.getInputStream());
@@ -139,7 +132,8 @@ public class PlacesService {
                 Place place = new Place();
                 place.reference = predsJsonArray.getJSONObject(i).getString("reference");
                 place.name = predsJsonArray.getJSONObject(i).getString("name");
-                resultList.add(place);
+                //resultList.add(place);
+                resultList.add(details(place.reference));
             }
         } catch (JSONException e) {
         }
