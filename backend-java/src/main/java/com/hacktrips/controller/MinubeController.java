@@ -67,7 +67,7 @@ public class MinubeController {
             MediaType.APPLICATION_JSON_VALUE
     })
     @ResponseBody
-    public List<POIData> byLatitude(@RequestParam String name) {
+    public List<POIData> byName(@RequestParam String name) {
         List<POIData> pois = new ArrayList<>();
         GuavaCache guavaCache = (GuavaCache) cacheManager.getCache(CacheEnum.POIS_BY_NAME.name());
         Cache<Object, Object> cache = guavaCache.getNativeCache();

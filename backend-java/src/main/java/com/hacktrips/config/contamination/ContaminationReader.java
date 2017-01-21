@@ -46,7 +46,7 @@ public class ContaminationReader {
         CONTAMINATION.put("28079060", new ContaminationData(40.4984271, -3.6940228));
     }
 
-    public static void main(String[] args) throws FileNotFoundException, IOException {
+    public static Map<String, ContaminationData> readCSV() throws FileNotFoundException, IOException {
         File csvData = new File("src/main/resources/contaminacion.csv");
         CSVParser parser = CSVParser.parse(IOUtils.toString(new FileInputStream(csvData)), CSVFormat.DEFAULT);
         for (CSVRecord csvRecord : parser) {
@@ -57,17 +57,13 @@ public class ContaminationReader {
                     String anyo = csvRecord.get(6);
                     String mes = csvRecord.get(7);
                     String dia = csvRecord.get(8);
-
                     if (csvRecord.get(3).equals("06") || csvRecord.get(3).equals("42")
                             || csvRecord.get(3).equals("44")) {
-                        log.info("Ignored " + id + " on " + anyo + "-" + mes + "-" + dia + "tiene " + csvRecord.get(9));
+                        log.debug("Ignored " + id + " on " + anyo + "-" + mes + "-" + dia + "tiene " + csvRecord.get(9));
                     } else {
-                        int hora = 1;
-                        if (contaminationData.getContaminationByHour().containsKey(hora)) {
-
+                        for (int hora = 1, position = 9; hora <= 24; hora++, position += 2) {
+                            fillData(csvRecord, contaminationData, hora, position);
                         }
-                        contaminationData.getContaminationByHour().put(hora, Double.valueOf(csvRecord.get(9)));
-
                         //                        log.info(id + " on " + anyo + "-" + mes + "-" + dia + "tiene " + csvRecord.get(9));
                     }
                 } else {
@@ -77,6 +73,15 @@ public class ContaminationReader {
                 log.info("Es diarios!!");
             }
         }
+        return CONTAMINATION;
+    }
+
+    private static void fillData(CSVRecord csvRecord, ContaminationData contaminationData, int hora, int position) {
+        Double previousValue = 0.0;
+        if (contaminationData.getContaminationByHour().containsKey(hora)) {
+            previousValue = contaminationData.getContaminationByHour().get(hora);
+        }
+        contaminationData.getContaminationByHour().put(hora, previousValue + Double.valueOf(csvRecord.get(position)));
     }
 
 

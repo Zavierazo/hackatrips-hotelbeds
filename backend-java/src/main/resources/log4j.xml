@@ -10,7 +10,7 @@
 		<!-- Print only messages of level warn or above in the package com.foo -->
 		<level value="info" />
 	</logger>
-	<logger name="com.hacktrips.config">
+	<logger name="com.hacktrips.config.LoggingRequestInterceptor">
 		<level value="DEBUG"/>
 	</logger>
 	<root>
