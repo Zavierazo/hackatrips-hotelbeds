@@ -33,8 +33,6 @@ setTimeout(function() {
 }, 3500);
 */
 
-textInput.send("Madrid")
-
 // Register Vue.js plugins
 Vue.use(VueCookie)
 
