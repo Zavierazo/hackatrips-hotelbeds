@@ -55,14 +55,14 @@ public class MiNubeService {
     );
 
     @Cacheable(value = CacheEnum.POIS_MINUBE_CACHE, unless = "#result == null or #result.length==0")
-    public POIData[] getPage(Double latitude, Double longitude, Integer page, Integer category) {
+    public POIData[] getPage(Double latitude, Double longitude, Integer page, Integer category, Integer distance) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/json");
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://papi.minube.com/pois")
                 .queryParam("lang", "es")
                 .queryParam("latitude", latitude)
                 .queryParam("longitude", longitude)
-                .queryParam("max_distance", "50000")
+                .queryParam("max_distance", distance)
                 .queryParam("min_distance", "0")
                 .queryParam("page", page)
                 .queryParam("api_key", "cbw3xX5uMmVh7ZXu");
