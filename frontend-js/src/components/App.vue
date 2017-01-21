@@ -19,7 +19,12 @@
     @import '../styles/normalize.scss';
     @import '../styles/source_sans_pro.scss';
     /*@import '../styles/cartodb.css';*/
-
+    html {
+        box-sizing: border-box;
+    }
+    *, *:before, *:after {
+        box-sizing: inherit;
+    }
 
     body {
         font-family             : 'Source Sans Pro', Helvetica, Arial, sans-serif;

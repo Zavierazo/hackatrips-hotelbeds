@@ -1,9 +1,12 @@
 package com.hacktrips.model.carto;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,7 +27,9 @@ public class CartoPostgreSQL {
 
 	private String tableName;
 	private Map<String, Class<?>> columns = new HashMap<>();
-	private Map<String, Object> values = new HashMap<>();
+	private List<Map<String, Object>> valuesOfColumns = new ArrayList<>();
+	private List<String> queueToTables = new ArrayList<>();
+
 	private TypeSQL typeSQL;
 	private List<POIData> pois;
 
@@ -39,21 +44,54 @@ public class CartoPostgreSQL {
 			return createCmd();
 		} else if (TypeSQL.INSERT.equals(typeSQL)) {
 			prepareColumnsForInsert();
-			insertCmd();
+			return insertCmd();
 		}
 		return null;
 	}
 
 	private void prepareColumnsForCreate() {
+		columns.clear();
 		Field[] fields = POIData.class.getDeclaredFields();
-		for (Field field : fields) {
-			columns.put(field.getName(), field.getType());
+		boolean found = false;
+		if (!queueToTables.isEmpty()) {
+			for (String entity : queueToTables) {
+				for (Field field : fields) {
+					if (entity.equalsIgnoreCase(field.getName()) && !found) {
+						columns.put(field.getName(), field.getType());
+						found = true;
+						// skip all queues
+					}
+				}
+			}
+			// the queue is only for this iteration in the createCmd maybe we
+			// can add more TODO add java queue....
+			queueToTables.clear();
+		} else {
+			for (Field field : fields) {
+				columns.put(field.getName(), field.getType());
+			}
 		}
 	}
 
 	private void prepareColumnsForInsert() {
+		// private Integer id;
+		// private String name;
+		// private Double latitude;
+		// private Double longitude;
+		// private String picture_url;
+		// private Double distance;
+		// private Double prob;
+		// private Map<Integer, Double> contaminationByHour = new HashMap<>();
+		Map<String, Object> values = new HashMap<>();
 		for (POIData poi : pois) {
+			values.put("id", poi.getId());
 			values.put("name", poi.getName());
+			values.put("latitude", poi.getLatitude());
+			values.put("longitude", poi.getLongitude());
+			values.put("picture_url", poi.getPicture_url());
+			values.put("distance", poi.getDistance());
+			values.put("prob", poi.getProb());
+			valuesOfColumns.add(values);
 		}
 	}
 
@@ -65,17 +103,23 @@ public class CartoPostgreSQL {
 		str.append("(");
 		int count = 0;
 		for (String key : columns.keySet()) {
-			str.append(key);
-			str.append(StringUtils.SPACE);
+			boolean skipColumn = false;
 			Class<?> type = columns.get(key);
-			if (type.isAssignableFrom(Integer.class)) {
-				str.append("integer");
-			} else if (type.isAssignableFrom(String.class)) {
-				str.append("varchar");
-			} else if (type.isAssignableFrom(Double.class)) {
-				str.append("double");
+			if (type.isAssignableFrom(Map.class)) {
+				queueToTables.add(key);
+				skipColumn = true;
+			} else {
+				str.append(key);
+				str.append(StringUtils.SPACE);
+				if (type.isAssignableFrom(Integer.class)) {
+					str.append("integer");
+				} else if (type.isAssignableFrom(String.class)) {
+					str.append("varchar");
+				} else if (type.isAssignableFrom(Double.class)) {
+					str.append("decimal");
+				}
 			}
-			if (++count < columns.size()) {
+			if (++count < columns.size() && !skipColumn) {
 				str.append(",");
 			}
 		}
@@ -86,34 +130,58 @@ public class CartoPostgreSQL {
 	private String insertCmd() {
 		StringBuffer str = new StringBuffer();
 
-		int count2 = 0;
-		for (String keyValues : values.keySet()) {
+		for (Map<String, Object> mapValue : valuesOfColumns) {
+
+			SortedSet<String> keys = new TreeSet<String>(mapValue.keySet());
+
+			
+			str.append(StringUtils.SPACE);
 			str.append(INSERT_INTO);
 			str.append(StringUtils.SPACE);
 			str.append(tableName);
 			str.append("(");
 			int count = 0;
-			for (String key : columns.keySet()) {
-				str.append(key);
-				str.append(StringUtils.SPACE);
-				if (++count < columns.size()) {
-					str.append(",");
-				}
+			for (String keyValues : keys) {
+				//for (String key : columns.keySet()) {
+					//if (key.equalsIgnoreCase(keyValues)) {
+						str.append(keyValues);
+						str.append(StringUtils.SPACE);
+						if (++count < mapValue.size()) {
+							str.append(",");
+						}
+					//}
+				//}
 			}
 			str.append(")");
 			str.append(StringUtils.SPACE);
 			str.append(VALUES);
 			str.append(StringUtils.SPACE);
 			str.append("(");
-
-			String value = (String) values.get(keyValues);
-			str.append(value);
-			str.append(StringUtils.SPACE);
-			if (++count2 < columns.size()) {
-				str.append(",");
+			int count2 = 0;
+			for (String keyValues : keys) {
+				//for (String key : columns.keySet()) {
+					//if (key.equalsIgnoreCase(keyValues)) {
+				Object value = mapValue.get(keyValues);
+				if (value != null && value instanceof String) {
+					str.append("'");
+					str.append(value);
+					str.append("'");
+				} else {
+					if (value != null)
+						str.append(value);
+					else
+						str.append(0);
+				}
+						
+						if (++count2 < mapValue.size()) {
+							str.append(",");
+						}
+					//}
+				//}
 			}
+			str.append(StringUtils.SPACE);
+			str.append(");");
 		}
-		str.append(");");
 		return str.toString();
 	}
 }
