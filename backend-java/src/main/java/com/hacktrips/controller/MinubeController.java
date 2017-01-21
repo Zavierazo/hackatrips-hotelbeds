@@ -7,19 +7,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.guava.GuavaCache;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.cache.Cache;
+import com.hacktrips.config.contamination.ContaminationData;
 import com.hacktrips.enums.CacheEnum;
 import com.hacktrips.model.minube.POIData;
+import com.hacktrips.service.CartoService;
+import com.hacktrips.service.ContaminationService;
 import com.hacktrips.service.MiNubeService;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +37,22 @@ public class MinubeController {
     private MiNubeService minubeService;
     @Autowired
     private CacheManager cacheManager;
+    @Autowired
+    private ContaminationService contaminationService;
+
+
+    @Autowired
+    ObjectFactory<CartoService> cartoFactory;
+
+    CartoService buildCartoService() {
+        return cartoFactory.getObject();
+    }
+
     private static final NormalizedLevenshtein l = new NormalizedLevenshtein();
 
+    @CrossOrigin(origins = {
+            "*"
+    })
     @RequestMapping(method = RequestMethod.GET, value = "/pois", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
@@ -63,11 +82,14 @@ public class MinubeController {
     }
 
 
+    @CrossOrigin(origins = {
+            "*"
+    })
     @RequestMapping(method = RequestMethod.GET, value = "/poisByName", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
     @ResponseBody
-    public List<POIData> byLatitude(@RequestParam String name) {
+    public List<POIData> byName(@RequestParam String name) {
         List<POIData> pois = new ArrayList<>();
         GuavaCache guavaCache = (GuavaCache) cacheManager.getCache(CacheEnum.POIS_BY_NAME.name());
         Cache<Object, Object> cache = guavaCache.getNativeCache();
@@ -89,11 +111,22 @@ public class MinubeController {
         }
         for (POIData data : pois) {
             data.setProb(null);
+            ContaminationData contaminationData = contaminationService.getContaminationInterpolation(data.getLatitude(), data.getLongitude());
+            if (contaminationData != null) {
+                data.setContaminationByHour(contaminationData.getContaminationByHour());
+            }
         }
         Collections.sort(pois, new DistanceComparator());
+
+        // Upload data to Carto
+        buildCartoService().uploadData(pois);
+
         return pois;
     }
 
+    @CrossOrigin(origins = {
+            "*"
+    })
     @RequestMapping(method = RequestMethod.GET, value = "/textSearch", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
@@ -156,6 +189,9 @@ public class MinubeController {
             }
         }
         Collections.sort(pois, new ProbComparator());
+
+        buildCartoService().uploadData(pois);
+
         return pois;
     }
 

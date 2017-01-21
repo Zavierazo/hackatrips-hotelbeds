@@ -1,7 +1,7 @@
 var fp = require("path")
 var webpack = require("webpack");
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var config = require("./config")(process.argv);
+var config = require("./.development.js")
 
 module.exports = {
     entry: {
