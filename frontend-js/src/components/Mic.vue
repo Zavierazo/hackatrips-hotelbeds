@@ -30,7 +30,7 @@
 
         &__icon {
             margin: 0 auto;
-            width: 200px;
+            width: 150px;
             cursor: pointer;
             background: #F44336;
 
@@ -57,12 +57,12 @@
             &:focus {
                 outline: 0;
 
-            }
+             }
 
-        }
-        &__caption {
-            display: block;
-            margin: 20px;
+         }
+        &__caption{
+             display : block;
+             margin : 20px;
             color: #333;
             text-align: center;
             font-size: 24px;
@@ -78,6 +78,8 @@
 </style>
 
 <script>
+    //import HeaderComponent from './components/header.vue'
+    //import OtherComponent from './components/other.vue'
     import anime from 'animejs'
     import textInput from '../services/textInput'
     //import anime from 'cartodb.js'
