@@ -28,8 +28,9 @@ public class CartoPostgreSQL {
 	private TypeSQL typeSQL;
 	private List<POIData> pois;
 
-	public CartoPostgreSQL(String tableName, Object entity) {
+	public CartoPostgreSQL(String tableName, List<POIData> pois) {
 		this.tableName = tableName;
+		this.pois = pois;
 	}
 
 	public String generateDataSet() {
@@ -44,7 +45,7 @@ public class CartoPostgreSQL {
 	}
 	
 	private void prepareColumnsForCreate() {
-		Field[] fields = POIData.class.getFields();
+		Field[] fields = POIData.class.getDeclaredFields();
 		for (Field field : fields) {
 			columns.put(field.getName(), field.getDeclaringClass());
 		}
