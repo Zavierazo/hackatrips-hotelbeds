@@ -1,6 +1,7 @@
 package com.hacktrips.config;
 
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import javax.sql.DataSource;
 
@@ -13,7 +14,9 @@ import org.springframework.web.client.RestTemplate;
 public class BeansConfig {
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setInterceptors(Arrays.asList(new LoggingRequestInterceptor()));
+        return restTemplate;
     }
 
     @Bean

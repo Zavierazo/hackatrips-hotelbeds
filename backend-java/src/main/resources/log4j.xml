@@ -10,6 +10,9 @@
 		<!-- Print only messages of level warn or above in the package com.foo -->
 		<level value="info" />
 	</logger>
+	<logger name="com.hacktrips.config">
+	<leve value="DEBUG"/>
+	</logger>
 	<root>
 		<priority value="INFO" />
 		<appender-ref ref="stdout" />
