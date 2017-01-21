@@ -11,6 +11,8 @@ import router from './router'
 import App from './components/App.vue'
 import Layout from "./components/Layout.vue"
 import InputPassword from "./components/InputPassword.vue"
+import Mic from "./components/Mic.vue"
+import Mapi from "./components/Mapi.vue"
 
 import audioInput from './services/audioInput'
 import textInput from './services/textInput'
@@ -39,8 +41,10 @@ Vue.use(VueCookie)
 // Register components
 Vue.component('app-layout', Layout)
 Vue.component('input-password', InputPassword)
+Vue.component('mic', Mic)
+Vue.component('mapi', Mapi)
 
-Vue.config.debug = true
+Vue.config.debug    = true
 Vue.config.devtools = true
 
 new Vue({

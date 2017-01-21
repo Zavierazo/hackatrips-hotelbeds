@@ -14,6 +14,10 @@ const router = new VueRouter({
             name: 'home',
             path: '/',
             component: Search
+        }, {
+            name: 'results',
+            path: '/results',
+            component: Results
         }
     ]
 })

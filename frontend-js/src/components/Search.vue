@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div>Search</div>
+        <mic></mic>
     </div>
 </template>
 
