@@ -114,19 +114,22 @@
                 const resultContainer = this.$refs['autosuggestResults']
 
                 textInput.send(input.value).then( (response) => {
+
                     const results = response.data
                     const maxResults = 10
 
                     resultContainer.innerHTML = ''
 
-                    for (let i = 0; i < results.length && i < maxResults; i++) {
-                            const listItem = window.document.createElement('li')
-                            listItem.innerHTML = results[i].name
-                            listItem.classList.add('listitem')
-                            resultContainer.appendChild(listItem)
+                    if (input.value.length > 0) {
+                        for (let i = 0; i < results.length && i < maxResults; i++) {
+                                const listItem = window.document.createElement('li')
+                                listItem.innerHTML = results[i].name
+                                listItem.classList.add('listitem')
+                                resultContainer.appendChild(listItem)
+                        }
                     }
 
-                    //console.log(response)
+                    console.log(response)
                 }).catch ( (error) => {
                     console.log(error)
                 })

@@ -6,12 +6,15 @@ var config = {
 		"assetPath": "http://127.0.0.1:3000/assets/"
 	},
 	"services": {
+	    "backend": {
+	        "base": 'http://5d4e719d.ngrok.io'
+        },
 		"microsoft": {
 			'Ocp-Apim-Subscription-Key': 'b2a497a6fc874be684e977e16417b8e8',
 			'autoSuggestEndpoint': 'https://api.cognitive.microsoft.com/bing/v5.0/suggestions/'
 
 		},
-		"demo": {
+        "demo": {
 			"key": "demo",
 			"secret": "s3cr3t"
 		}

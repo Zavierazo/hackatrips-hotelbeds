@@ -4,8 +4,7 @@ export default{
     constructor() {
     },
     send(queryText) {
-        const endPoint = 'http://localhost:8080/minube/textSearch'
-
-        return axios.get(endPoint + '?text=' + queryText)
+        const endPoint = 'http://127.0.0.1:3000/api/suggest'
+        return axios.get(endPoint + '?q=' + queryText)
     }
 }
