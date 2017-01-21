@@ -29,20 +29,6 @@ const appServer = function (config) {
         next()
     })
 
-    app.post('/api/ms-autosuggest', parser, (req, res) => {
-        const endPoint = config.services.microsoft['autoSuggestEndpoint']
-
-        axios.get(endPoint + '?q=' + req.body.query, {
-            headers: {
-                'Ocp-Apim-Subscription-Key': '9e658d96af064a08a7793760b65aa42e',
-            }
-        }).then((response) => {
-            res.send(response.data)
-        }).catch((error) => {
-            res.send(error)
-        })
-    })
-
     app.post('/api/ms-cognitive-token', (req, res) => {
         axios.post(microsoftEndPoint, {}, {
             headers: {
