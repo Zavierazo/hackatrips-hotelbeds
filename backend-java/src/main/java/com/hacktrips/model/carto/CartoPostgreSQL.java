@@ -15,16 +15,16 @@ import lombok.Data;
 public class CartoPostgreSQL {
 
 	public enum TypeSQL {
-		CREATE,
-		INSERT
+		CREATE, INSERT
 	}
-	
+
 	private static final String CREATE_TABLE = "CREATE TABLE";
 	private static final String INSERT_INTO = "INSERT INTO";
 	private static final String VALUES = "VALUES";
 
 	private String tableName;
-	private Map<String, Object> columns = new HashMap<>();
+	private Map<String, Class<?>> columns = new HashMap<>();
+	private Map<String, Object> values = new HashMap<>();
 	private TypeSQL typeSQL;
 	private List<POIData> pois;
 
@@ -43,21 +43,20 @@ public class CartoPostgreSQL {
 		}
 		return null;
 	}
-	
+
 	private void prepareColumnsForCreate() {
 		Field[] fields = POIData.class.getDeclaredFields();
 		for (Field field : fields) {
-			columns.put(field.getName(), field.getDeclaringClass());
+			columns.put(field.getName(), field.getType());
 		}
 	}
-	
+
 	private void prepareColumnsForInsert() {
-		columns.clear();
 		for (POIData poi : pois) {
-			columns.put("name", poi.getName());
+			values.put("name", poi.getName());
 		}
 	}
-	
+
 	private String createCmd() {
 		StringBuffer str = new StringBuffer();
 		str.append(CREATE_TABLE);
@@ -68,11 +67,13 @@ public class CartoPostgreSQL {
 		for (String key : columns.keySet()) {
 			str.append(key);
 			str.append(StringUtils.SPACE);
-			Object type = columns.get(key);
-			if (type instanceof Integer) {
+			Class<?> type = columns.get(key);
+			if (type.isAssignableFrom(Integer.class)) {
 				str.append("integer");
-			} else if (type instanceof String) {
+			} else if (type.isAssignableFrom(String.class)) {
 				str.append("varchar");
+			} else if (type.isAssignableFrom(Double.class)) {
+				str.append("double");
 			}
 			if (++count < columns.size()) {
 				str.append(",");
@@ -81,33 +82,34 @@ public class CartoPostgreSQL {
 		str.append(");");
 		return str.toString();
 	}
-	
+
 	private String insertCmd() {
 		StringBuffer str = new StringBuffer();
-		str.append(INSERT_INTO);
-		str.append(StringUtils.SPACE);
-		str.append(tableName);
-		str.append("(");
-		int count = 0;
-		for (String key : columns.keySet()) {
-			str.append(key);
-			str.append(StringUtils.SPACE);			
-			if (++count < columns.size()) {
-				str.append(",");
-			}
-		}
-		str.append(")");
-		str.append(StringUtils.SPACE);
-		str.append(VALUES);
-		str.append(StringUtils.SPACE);
-		str.append("(");
 
-		count = 0;
-		for (String key : columns.keySet()) {
-			String value = (String)columns.get(key);
+		int count2 = 0;
+		for (String keyValues : values.keySet()) {
+			str.append(INSERT_INTO);
+			str.append(StringUtils.SPACE);
+			str.append(tableName);
+			str.append("(");
+			int count = 0;
+			for (String key : columns.keySet()) {
+				str.append(key);
+				str.append(StringUtils.SPACE);
+				if (++count < columns.size()) {
+					str.append(",");
+				}
+			}
+			str.append(")");
+			str.append(StringUtils.SPACE);
+			str.append(VALUES);
+			str.append(StringUtils.SPACE);
+			str.append("(");
+
+			String value = (String) values.get(keyValues);
 			str.append(value);
 			str.append(StringUtils.SPACE);
-			if (++count < columns.size()) {
+			if (++count2 < columns.size()) {
 				str.append(",");
 			}
 		}

@@ -29,6 +29,18 @@ const appServer = function (config) {
         next()
     })
 
+    app.get('/api/suggest', (req, res) => {
+        const endPoint = config.services.backend.base + '/minube/textSearch'
+
+        const queryText = req.query.q
+
+        axios.get(endPoint + '?text=' + queryText).then((result) => {
+            res.send(result.data)
+        }).catch((error) => {
+            res.send(error)
+        })
+    })
+
     app.post('/api/ms-cognitive-token', (req, res) => {
         axios.post(microsoftEndPoint, {}, {
             headers: {
