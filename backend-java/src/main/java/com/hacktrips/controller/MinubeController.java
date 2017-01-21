@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.guava.GuavaCache;
@@ -22,7 +21,7 @@ import com.google.common.cache.Cache;
 import com.hacktrips.enums.CacheEnum;
 import com.hacktrips.model.minube.POIData;
 import com.hacktrips.service.MiNubeService;
-import info.debatty.java.stringsimilarity.OptimalStringAlignment;
+import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -79,6 +78,7 @@ public class MinubeController {
                 splitedText.add(splited);
             }
         }
+        int minOccurences = splitedText.size() / 2;
         int maxOccurences = 0;
         for (Object key : cacheMap.keySet()) {
             if (key instanceof String) {
@@ -92,7 +92,7 @@ public class MinubeController {
                             occurrences++;
                         }
                     }
-                    if (occurrences > 0) {
+                    if (occurrences > minOccurences) {
                         if (!partialMatch.containsKey(occurrences)) {
                             partialMatch.put(occurrences, new ArrayList<>());
                         }
@@ -104,12 +104,12 @@ public class MinubeController {
                 }
             }
         }
-        OptimalStringAlignment l = new OptimalStringAlignment();
+        NormalizedLevenshtein l = new NormalizedLevenshtein();
         if (!matchFullKeys.isEmpty()) {
             for (String key : matchFullKeys) {
                 POIData data = (POIData) cacheMap.get(key);
-                //                data.setProb(l.distance(text.toLowerCase(), key.toLowerCase()));
-                data.setProb(StringUtils.getJaroWinklerDistance(text.toLowerCase(), key.toLowerCase()));
+                data.setProb(l.distance(text.toLowerCase(), key.toLowerCase()));
+                //                data.setProb(StringUtils.getJaroWinklerDistance(text.toLowerCase(), key.toLowerCase()));
                 pois.add(data);
             }
         } else if (!partialMatch.isEmpty()) {
@@ -117,10 +117,19 @@ public class MinubeController {
                 if (partialMatch.containsKey(i)) {
                     for (String key : partialMatch.get(i)) {
                         POIData data = (POIData) cacheMap.get(key);
-                        //                        data.setProb(l.distance(text.toLowerCase(), key.toLowerCase()));
-                        data.setProb(StringUtils.getJaroWinklerDistance(text.toLowerCase(), key.toLowerCase()));
+                        data.setProb(l.distance(text.toLowerCase(), key.toLowerCase()));
+                        //                        data.setProb(StringUtils.getJaroWinklerDistance(text.toLowerCase(), key.toLowerCase()));
                         pois.add(data);
                     }
+                }
+            }
+        } else {
+            for (Object key : cacheMap.keySet()) {
+                if (key instanceof String) {
+                    String keyString = (String) key;
+                    POIData data = (POIData) cacheMap.get(key);
+                    data.setProb(l.distance(text.toLowerCase(), keyString.toLowerCase()));
+                    pois.add(data);
                 }
             }
         }
