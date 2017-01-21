@@ -31,13 +31,14 @@ public class AppStartUpActions {
     public void startUpActionsSync() throws FileNotFoundException, IOException {
         Utils.ignoreSSL(); //Used to ignore SSL when atack to a https url
         // Start async tasks thread
-        StartUpActionsAsync startActions = new StartUpActionsAsync();
-        startActions.start();
+
         Map<String, ContaminationData> contamination = ContaminationReader.readCSV();
         GuavaCache guavaCache = (GuavaCache) cacheManager.getCache(CacheEnum.CONTAMINATION_CACHE);
         Cache<Object, Object> cache = guavaCache.getNativeCache();
         Map<Object, Object> cacheMap = cache.asMap();
         cacheMap.putAll(contamination);
+        StartUpActionsAsync startActions = new StartUpActionsAsync();
+        startActions.start();
     }
 
     @AllArgsConstructor

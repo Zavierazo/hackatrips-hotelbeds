@@ -83,10 +83,6 @@ public class ContaminationService {
         return contamination;
     }
 
-    public static void main(String[] args) {
-        System.out.println(normalizedValue(10, 10, 10));
-    }
-
     private static double normalizedValue(double value, double max, double min) {
         return (value - min) / (max - min);
     }
