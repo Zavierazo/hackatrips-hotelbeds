@@ -13,6 +13,7 @@ public enum CacheEnum {
 
     public static final String EXAMPLE_CACHE = "EXAMPLE";
     public static final String POIS_MINUBE_CACHE = "POIS_MINUBE";
+    public static final String PLACE_GOOGLE_CACHE = "PLACE_GOOGLE";
 
     private long readExpiration = -1;// By default without expiration
     private long writeExpiration = -1;// By default without expiration
