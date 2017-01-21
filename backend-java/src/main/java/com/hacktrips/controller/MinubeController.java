@@ -26,6 +26,7 @@ import com.hacktrips.model.minube.POIData;
 import com.hacktrips.service.CartoService;
 import com.hacktrips.service.ContaminationService;
 import com.hacktrips.service.MiNubeService;
+import com.hacktrips.util.Utils;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import lombok.extern.slf4j.Slf4j;
 
@@ -111,6 +112,9 @@ public class MinubeController {
         }
         for (POIData data : pois) {
             data.setProb(null);
+            if (data.getDistance() == null) {
+                data.setDistance(Utils.distance(padre.getLatitude(), data.getLatitude(), padre.getLongitude(), data.getLongitude()));
+            }
             ContaminationData contaminationData = contaminationService.getContaminationInterpolation(data.getLatitude(), data.getLongitude());
             if (contaminationData != null) {
                 data.setContaminationByHour(contaminationData.getContaminationByHour());
