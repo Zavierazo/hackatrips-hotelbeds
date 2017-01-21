@@ -1,18 +1,17 @@
 import fp from "path"
-import fs from "fs"
+import axios from "axios"
 import express from "express"
 import hbs from "express-hbs"
 import favicon from "serve-favicon"
-import Handlebars from "handlebars"
-import {createStore, combineReducers, applyMiddleware} from "redux"
+import bodyParser from "body-parser"
 
-//import routes from "./src/routes"
-//import fetchComponentData from "./src/lib/fetchComponentData"
-//import appReducers from "./src/reducers"
-//import promiseMiddleware from "./src/lib/promiseMiddleware"
+const microsoftSubscriptionKey = "b2a497a6fc874be684e977e16417b8e8"
+const microsoftEndPoint = 'https://api.cognitive.microsoft.com/sts/v1.0/issueToken'
 
 const appServer = function (config) {
     const app = express()
+
+    const parser = bodyParser.json()
 
     app.set("view engine", "hbs")
     app.set("views", fp.join(__dirname, "templates"))
@@ -28,7 +27,38 @@ const appServer = function (config) {
         res.header("Access-Control-Allow-Headers", "Content-Type")
 
         next()
-    });
+    })
+
+    app.post('/api/ms-autosuggest', parser, (req, res) => {
+        const endPoint = config.services.microsoft['autoSuggestEndpoint']
+
+        axios.get(endPoint + '?q=' + req.body.query, {
+            headers: {
+                'Ocp-Apim-Subscription-Key': '9e658d96af064a08a7793760b65aa42e',
+            }
+        }).then((response) => {
+            res.send(response.data)
+        }).catch((error) => {
+            res.send(error)
+        })
+    })
+
+    app.post('/api/ms-cognitive-token', (req, res) => {
+        axios.post(microsoftEndPoint, {}, {
+            headers: {
+                'Ocp-Apim-Subscription-Key': microsoftSubscriptionKey
+            }
+        }).then(
+            (response) => {
+                res.send({token: response.data})
+            }
+        ).catch(
+            (error) => {
+                console.log(error)
+                res.send({error: 'error'})
+            }
+        )
+    })
 
     app.use(favicon(fp.join(__dirname, "public", "favicon.png")))
 
