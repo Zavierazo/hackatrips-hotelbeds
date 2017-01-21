@@ -14,6 +14,27 @@ import InputPassword from "./components/InputPassword.vue"
 import Mic from "./components/Mic.vue"
 import Mapi from "./components/Mapi.vue"
 
+import audioInput from './services/audioInput'
+import textInput from './services/textInput'
+
+/*
+audioInput.init()
+
+setTimeout(function () {
+    audioInput.start()
+}, 500);
+
+setTimeout(function () {
+    audioInput.stop()
+}, 3100);
+
+setTimeout(function() {
+    audioInput.send()
+}, 3500);
+*/
+
+textInput.send("Madrid")
+
 // Register Vue.js plugins
 Vue.use(VueCookie)
 

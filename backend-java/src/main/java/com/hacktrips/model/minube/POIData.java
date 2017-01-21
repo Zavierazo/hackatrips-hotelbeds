@@ -9,11 +9,13 @@ import lombok.Data;
 public class POIData {
     private Integer id;
     private String name;
-    private String latitude;
-    private String longitude;
-    private Integer country_id;
-    private Integer zone_id;
-    private Integer city_id;
-    private Integer subcategory_id;
+    private Double latitude;
+    private Double longitude;
+    //    private Integer country_id;
+    //    private Integer zone_id;
+    //    private Integer city_id;
+    //    private Integer subcategory_id;
     private String picture_url;
+    private Double distance;
+    private Double prob;
 }
