@@ -13,6 +13,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.guava.GuavaCache;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +45,9 @@ public class MinubeController {
 	
     private static final NormalizedLevenshtein l = new NormalizedLevenshtein();
 
+    @CrossOrigin(origins = {
+            "*"
+    })
     @RequestMapping(method = RequestMethod.GET, value = "/pois", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
@@ -73,6 +77,9 @@ public class MinubeController {
     }
 
 
+    @CrossOrigin(origins = {
+            "*"
+    })
     @RequestMapping(method = RequestMethod.GET, value = "/poisByName", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
@@ -108,6 +115,9 @@ public class MinubeController {
         return pois;
     }
 
+    @CrossOrigin(origins = {
+            "*"
+    })
     @RequestMapping(method = RequestMethod.GET, value = "/textSearch", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
