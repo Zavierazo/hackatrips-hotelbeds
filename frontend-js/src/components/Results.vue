@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div>Results</div>
+        <mapi></mapi>
     </div>
 </template>
 
@@ -12,11 +12,11 @@
     //import OtherComponent from './components/other.vue'
     export default{
         data(){
-            return{
-                msg:'hello vue'
+            return {
+                msg: 'hello vue'
             }
         },
-        components:{
+        components: {
             //'other-component':OtherComponent,
             //HeaderComponent,
         }
