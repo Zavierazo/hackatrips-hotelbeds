@@ -19,6 +19,8 @@ public class AppStartUpActions {
     public void startUpActionsSync() {
         Utils.ignoreSSL(); //Used to ignore SSL when atack to a https url
 
+        
+        
         // Start async tasks thread
         StartUpActionsAsync startActions = new StartUpActionsAsync();
         startActions.start();
