@@ -52,7 +52,9 @@ public class DestinationsLoaderService {
                 ResponseEntity<City[]> cityResponse =
                         rest.exchange(builder.build().encode().toUri(), HttpMethod.GET, entity, City[].class);
                 for (City city : cityResponse.getBody()) {
-                    cacheMap.put(city.getCity_name(), city);
+                    if (city.getCity_name() != null) {
+                        cacheMap.put(city.getCity_name().toLowerCase(), city);
+                    }
                 }
             } catch (Exception e) {
                 log.error("Zone error", e);

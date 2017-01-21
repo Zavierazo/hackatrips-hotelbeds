@@ -132,6 +132,51 @@ public class MinubeController {
     @CrossOrigin(origins = {
             "*"
     })
+    @RequestMapping(method = RequestMethod.GET, value = "/poisByNameV2", produces = {
+            MediaType.APPLICATION_JSON_VALUE
+    })
+    @ResponseBody
+    public List<POIData> byNameV2(@RequestParam String city) {
+        List<POIData> pois = new ArrayList<>();
+        GuavaCache guavaCache = (GuavaCache) cacheManager.getCache(CacheEnum.CITIES.name());
+        Cache<Object, Object> cache = guavaCache.getNativeCache();
+        Map<Object, Object> cacheMap = cache.asMap();
+        City padre = (City) cacheMap.get(city.toLowerCase());
+        for (Integer category : MiNubeService.USED_CATEGORYS) {
+            loop: for (int page = 0; page < 999; page++) {
+                try {
+                    POIData[] rs = minubeService.getPage(padre.getLatitude(), padre.getLongitude(), page, category, 10000);
+                    for (POIData poi : rs) {
+                        pois.add(poi);
+                        cacheMap.put(poi.getName().toLowerCase(), poi);
+                    }
+                } catch (Exception e) {
+                    log.debug("Exception on page {}", page, e);
+                    break loop;
+                }
+            }
+        }
+        for (POIData data : pois) {
+            data.setProb(null);
+            if (data.getDistance() == null) {
+                data.setDistance(Utils.distance(padre.getLatitude(), data.getLatitude(), padre.getLongitude(), data.getLongitude()));
+            }
+            ContaminationData contaminationData = contaminationService.getContaminationInterpolation(data.getLatitude(), data.getLongitude());
+            if (contaminationData != null) {
+                data.setContaminationByHour(contaminationData.getContaminationByHour());
+            }
+        }
+        Collections.sort(pois, new DistanceComparator());
+
+        // Upload data to Carto
+        buildCartoService().uploadData(pois);
+
+        return pois;
+    }
+
+    @CrossOrigin(origins = {
+            "*"
+    })
     @RequestMapping(method = RequestMethod.GET, value = "/textSearchV2", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
