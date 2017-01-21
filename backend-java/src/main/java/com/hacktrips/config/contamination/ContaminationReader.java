@@ -1,7 +1,5 @@
 package com.hacktrips.config.contamination;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -47,9 +45,10 @@ public class ContaminationReader {
     }
 
     public static Map<String, ContaminationData> readCSV() throws FileNotFoundException, IOException {
-        File csvData =
-                new File(System.getProperty("mierda.file") != null ? System.getProperty("mierda.file") : "src/main/resources/contaminacion.csv");
-        CSVParser parser = CSVParser.parse(IOUtils.toString(new FileInputStream(csvData)), CSVFormat.DEFAULT);
+        //        
+        //        File csvData = new File("src/main/resources/");
+        CSVParser parser = CSVParser.parse(IOUtils.toString(ContaminationReader.class.getClassLoader().getResourceAsStream("contaminacion.csv")),
+                CSVFormat.DEFAULT);
         for (CSVRecord csvRecord : parser) {
             String id = csvRecord.get(0) + csvRecord.get(1) + csvRecord.get(2);
             if (csvRecord.get(5).equals("02")) {
