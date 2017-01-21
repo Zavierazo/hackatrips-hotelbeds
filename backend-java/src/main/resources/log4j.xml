@@ -11,7 +11,7 @@
 		<level value="info" />
 	</logger>
 	<logger name="com.hacktrips.config">
-	<leve value="DEBUG"/>
+		<level value="DEBUG"/>
 	</logger>
 	<root>
 		<priority value="INFO" />
