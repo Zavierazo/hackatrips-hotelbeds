@@ -7,7 +7,7 @@ var config = {
 	},
 	"services": {
 	    "backend": {
-	        "base": 'http://5d4e719d.ngrok.io'
+	        "base": 'http://127.0.0.1:8080'
         },
 		"microsoft": {
 			'Ocp-Apim-Subscription-Key': 'b2a497a6fc874be684e977e16417b8e8',
