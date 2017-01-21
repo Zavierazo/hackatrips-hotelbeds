@@ -16,6 +16,7 @@ import com.hacktrips.config.contamination.ContaminationData;
 import com.hacktrips.config.contamination.ContaminationReader;
 import com.hacktrips.controller.MinubeController;
 import com.hacktrips.enums.CacheEnum;
+import com.hacktrips.service.DestinationsLoaderService;
 import com.hacktrips.util.Utils;
 import lombok.AllArgsConstructor;
 
@@ -25,6 +26,8 @@ public class AppStartUpActions {
     private MinubeController minubeController;
     @Autowired
     private CacheManager cacheManager;
+    @Autowired
+    private DestinationsLoaderService destinationLoader;
 
     // Any startup sync action
     @PostConstruct
@@ -46,6 +49,7 @@ public class AppStartUpActions {
 
         @Override
         public void run() {
+            destinationLoader.load(63);
             minubeController.byLatitude(40.4137859, -3.6943158);
         }
 
