@@ -47,7 +47,8 @@ public class ContaminationReader {
     }
 
     public static Map<String, ContaminationData> readCSV() throws FileNotFoundException, IOException {
-        File csvData = new File("src/main/resources/contaminacion.csv");
+        File csvData =
+                new File(System.getProperty("mierda.file") != null ? System.getProperty("mierda.file") : "src/main/resources/contaminacion.csv");
         CSVParser parser = CSVParser.parse(IOUtils.toString(new FileInputStream(csvData)), CSVFormat.DEFAULT);
         for (CSVRecord csvRecord : parser) {
             String id = csvRecord.get(0) + csvRecord.get(1) + csvRecord.get(2);
