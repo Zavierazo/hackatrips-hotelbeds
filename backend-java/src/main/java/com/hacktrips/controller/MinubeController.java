@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.cache.Cache;
 import com.hacktrips.config.contamination.ContaminationData;
 import com.hacktrips.enums.CacheEnum;
+import com.hacktrips.model.minube.City;
 import com.hacktrips.model.minube.POIData;
 import com.hacktrips.service.CartoService;
 import com.hacktrips.service.ContaminationService;
@@ -49,7 +50,7 @@ public class MinubeController {
         return cartoFactory.getObject();
     }
 
-    private static final NormalizedLevenshtein l = new NormalizedLevenshtein();
+    private static final NormalizedLevenshtein LOVENSHTEIN = new NormalizedLevenshtein();
 
     @CrossOrigin(origins = {
             "*"
@@ -131,6 +132,55 @@ public class MinubeController {
     @CrossOrigin(origins = {
             "*"
     })
+    @RequestMapping(method = RequestMethod.GET, value = "/textSearchV2", produces = {
+            MediaType.APPLICATION_JSON_VALUE
+    })
+    @ResponseBody
+    public List<City> searchByTextCity(@RequestParam String text) {
+        GuavaCache guavaCache = (GuavaCache) cacheManager.getCache(CacheEnum.CITIES.name());
+        Cache<Object, Object> cache = guavaCache.getNativeCache();
+        Map<Object, Object> cacheMap = cache.asMap();
+        List<String> matchKeys = new ArrayList<>();
+        for (Object key : cacheMap.keySet()) {
+            String keyString = (String) key;
+            if (keyString != null && keyString.toLowerCase().contains(text.toLowerCase())) {
+                matchKeys.add(keyString);
+            }
+        }
+        List<City> result = new ArrayList<>();
+        if (!matchKeys.isEmpty()) {
+            for (String key : matchKeys) {
+                City city = (City) cacheMap.get(key);
+                if (key.toLowerCase().equals(text.toLowerCase())) {
+                    city.setProb(1.0);
+                } else {
+                    city.setProb(LOVENSHTEIN.distance(text.toLowerCase(), key.toLowerCase()));
+                }
+                result.add(city);
+            }
+        } else {
+            for (Object key : cacheMap.keySet()) {
+                String keyString = (String) key;
+                City city = (City) cacheMap.get(keyString);
+                city.setProb(LOVENSHTEIN.distance(text.toLowerCase(), keyString.toLowerCase()));
+                result.add(city);
+            }
+        }
+        Collections.sort(result, new ProbCityComparator());
+        return result;
+    }
+
+    private class ProbCityComparator implements Comparator<City> {
+        @Override
+        public int compare(City a, City b) {
+            return b.getProb().compareTo(a.getProb());
+        }
+    }
+
+
+    @CrossOrigin(origins = {
+            "*"
+    })
     @RequestMapping(method = RequestMethod.GET, value = "/textSearch", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
@@ -202,7 +252,7 @@ public class MinubeController {
     private void fillPOIData(String text, List<POIData> pois, Map<Object, Object> cacheMap, Object key) {
         String keyString = (String) key;
         POIData data = (POIData) cacheMap.get(key);
-        data.setProb(l.distance(text.toLowerCase(), keyString.toLowerCase()));
+        data.setProb(LOVENSHTEIN.distance(text.toLowerCase(), keyString.toLowerCase()));
         data.setDistance(null);
         pois.add(data);
     }

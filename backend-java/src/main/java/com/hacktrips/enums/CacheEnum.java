@@ -11,6 +11,7 @@ public enum CacheEnum {
     POIS_MINUBE,
     CONTAMINATION,
     PLACE_GOOGLE,
+    CITIES,
     LIMITED_CACHE(-1, -1, 10),//Cache with limit of 10 elements & no expiration
     EXAMPLE(-1, 10, -1);//Cache with expiration on 10 seconds & no entry limit
 

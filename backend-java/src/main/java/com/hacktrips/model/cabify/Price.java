@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class Price {
 
-    private VehicleType vehicle;
+    private VehicleType vehicle_type;
     private String vehicleId;
 
     @JsonInclude(Include.NON_NULL)
@@ -25,22 +25,22 @@ public class Price {
         private Boolean asap_only;
         private String currency;
         private String icon;
+        private Eta eta;
     }
 
-    public void setVehicle(VehicleType vehicle) {
-        this.vehicle = vehicle;
-        vehicleId = vehicle != null ? vehicle.get_id() : null;
+    public void setVehicle_type(VehicleType vehicle_type) {
+        this.vehicle_type = vehicle_type;
+        vehicleId = vehicle_type != null ? vehicle_type.get_id() : null;
     }
 
     private Integer total_price;
-    private String formatted_price;
+    private String price_formatted;
     private String currency;
     private String currency_symbol;
-    private Eta eta;
 
     @JsonInclude(Include.NON_NULL)
     @Data
-    public class Eta {
+    public static class Eta {
         private Integer min;
         private Integer max;
         private String formatted;
