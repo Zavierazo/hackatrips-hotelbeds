@@ -40,7 +40,7 @@ public class PlacesService {
 
     private static final String OUT_JSON = "/json";
 
-    private static final String API_KEY = "KEY";
+    private static final String API_KEY = "AIzaSyA-zQrBxeMqj-KT36HcZjY1cdjBf2ABaxM";
 
     
     //String placeId = "ChIJN1t_tDeuEmsRUsoyG83frY4";
