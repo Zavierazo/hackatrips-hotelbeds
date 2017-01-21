@@ -7,17 +7,11 @@
 </template>
 
 <script>
-	import auth from '../auth'
-
 	export default {
 		name: 'app-container',
 		data: {
-			loggedIn: auth.loggedIn()
 		},
 		created () {
-			auth.onChange = loggedIn => {
-				this.loggedIn = loggedIn
-			}
 		}
 	}
 </script>
