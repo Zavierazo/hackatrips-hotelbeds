@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.guava.GuavaCache;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.cache.Cache;
 import com.hacktrips.enums.CacheEnum;
 import com.hacktrips.model.minube.POIData;
+import com.hacktrips.service.CartoService;
 import com.hacktrips.service.MiNubeService;
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,14 @@ public class MinubeController {
     private MiNubeService minubeService;
     @Autowired
     private CacheManager cacheManager;
+    
+	@Autowired
+	ObjectFactory<CartoService> cartoFactory;
+
+	CartoService buildCartoService() {
+		return cartoFactory.getObject();
+	}
+	
     private static final NormalizedLevenshtein l = new NormalizedLevenshtein();
 
     @RequestMapping(method = RequestMethod.GET, value = "/pois", produces = {
@@ -91,6 +101,10 @@ public class MinubeController {
             data.setProb(null);
         }
         Collections.sort(pois, new DistanceComparator());
+        
+        // Upload data to Carto
+        buildCartoService().uploadData(pois);
+        
         return pois;
     }
 
