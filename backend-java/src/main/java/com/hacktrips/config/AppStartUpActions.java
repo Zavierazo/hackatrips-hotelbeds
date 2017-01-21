@@ -2,13 +2,17 @@ package com.hacktrips.config;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
+import com.hacktrips.controller.MinubeController;
 import com.hacktrips.util.Utils;
 import lombok.AllArgsConstructor;
 
 @Configuration
 public class AppStartUpActions {
+    @Autowired
+    private MinubeController minubeController;
 
     // Any startup sync action
     @PostConstruct
@@ -25,7 +29,7 @@ public class AppStartUpActions {
 
         @Override
         public void run() {
-            // Any startup async action
+            minubeController.byLatitude(40.4137859, -3.6943158);
         }
 
     }

@@ -16,4 +16,5 @@ public class POIData {
     private Integer city_id;
     private Integer subcategory_id;
     private String picture_url;
+    private Double distance;
 }

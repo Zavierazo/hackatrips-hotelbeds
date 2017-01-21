@@ -2,7 +2,6 @@ package com.hacktrips.config;
 
 import java.io.IOException;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -36,7 +35,7 @@ public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
         log.debug("Status code  : {}", response.getStatusCode());
         log.debug("Status text  : {}", response.getStatusText());
         log.debug("Headers      : {}", response.getHeaders());
-        log.debug("Response body: {}", IOUtils.toString(response.getBody()));
+        //        log.debug("Response body: {}", IOUtils.toString(response.getBody()));
         log.debug("===========================response end================================================");
         log.debug(sb.toString());
     }
