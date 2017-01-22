@@ -41,6 +41,8 @@ public class MinubeController {
     private CacheManager cacheManager;
     @Autowired
     private ContaminationService contaminationService;
+    @Autowired
+    private PlacesController placesController;
 
 
     @Autowired
@@ -157,6 +159,12 @@ public class MinubeController {
             }
         }
         for (POIData data : pois) {
+            //            List<Place> places = placesController.find(data.getLatitude(), data.getLongitude());
+            //            for (Place place : places) {
+            //                if (place != null && place.getDayHours() != null && place.getDayHours().get(6) != null) {
+            //                    data.setOpenByHour((HashMap<String, String>) place.getDayHours().get(6));
+            //                }
+            //            }
             data.setProb(null);
             if (data.getDistance() == null) {
                 data.setDistance(Utils.distance(padre.getLatitude(), data.getLatitude(), padre.getLongitude(), data.getLongitude()));

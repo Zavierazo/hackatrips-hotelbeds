@@ -149,9 +149,10 @@ public class CartoPostgreSQL {
 		str.append(StringUtils.SPACE);
 		str.append(tableName);
 		str.append("(");
-		str.append("contaminationId integer PRIMARY KEY,");
+		str.append("contaminationId integer,");
 		str.append("hour integer,");
-		str.append("level decimal");
+		str.append("level decimal,");
+		str.append("PRIMARY KEY(contaminationId, hour)");
 		str.append(");");
 		return str.toString();
 	}
@@ -250,9 +251,8 @@ public class CartoPostgreSQL {
 				// FIXME!!!! ¬¬ hackaton tips...
 				if (columnId.equalsIgnoreCase("contaminationByHour")) {
 					// Add child columns of subset
-					Object colValue = extractColumnValue(columnValue);
-					if (colValue instanceof ContaminationData) {
-						ContaminationData contamination = (ContaminationData) colValue;
+					if (columnValue instanceof ContaminationData) {
+						ContaminationData contamination = (ContaminationData) columnValue;
 						for (Integer hour : contamination.getContaminationByHour().keySet()) {
 							str.append(StringUtils.SPACE);
 							str.append(INSERT_INTO);

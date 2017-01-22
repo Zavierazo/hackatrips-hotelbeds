@@ -98,8 +98,9 @@ public class CartoService {
 				HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map,
 						headers);
 				System.out.println(dataSet);
-				ResponseEntity<CartoRS> response = restTemplate.exchange(builder.build().encode().toUri(),
-						HttpMethod.POST, request, CartoRS.class);
+				ResponseEntity<String> response = restTemplate.exchange(builder.build().encode().toUri(),
+						HttpMethod.POST, request, String.class);
+				//ResponseEntity<CartoRS> response = restTemplate.exchange(builder.build().encode().toUri(),HttpMethod.POST, request, CartoRS.class);
 			}
 			return cartoRS;// response.getBody();
 		} catch (Exception e) {
