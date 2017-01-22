@@ -50,7 +50,7 @@ public class AppStartUpActions {
         @Override
         public void run() {
             destinationLoader.load(63);
-            minubeController.byLatitude(40.4137859, -3.6943158);
+            //            minubeController.byLatitude(40.4137859, -3.6943158);
         }
 
     }

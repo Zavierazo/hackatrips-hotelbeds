@@ -23,7 +23,7 @@ export default{
             console.log('Recorder initialised.', self.recorder);
         }
 
-        navigator.getUserMedia({audio: true}, startUserMedia, function (e) {
+        navigator.mediaDevices.getUserMedia({audio: true}, startUserMedia, function (e) {
             console.log('No live audio input: ' + e);
         });
     },
@@ -59,7 +59,7 @@ export default{
             const endPoint = 'https://speech.platform.bing.com/recognize'
 
             axios.post(endPoint, qs.stringify({
-                'version': '3.0',
+                'VERSION': '3.0',
                 'scenarios': 'ulm',
                 'appid': appId,
                 'locale': 'en-US',
