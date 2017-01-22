@@ -53,6 +53,7 @@
               max-width :1000px;
               padding : 0;
             li{
+                cursor : pointer;
                 padding :15px;
                 background: rgba(244, 67, 54, 0.80);
                 border-top: 2px solid white;
