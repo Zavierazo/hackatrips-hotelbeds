@@ -36,19 +36,24 @@
 
                     <span class="destino" v-html="booking.destino"></span>
 
+
                     <span class="details">
                         a las <span><span v-html="booking.hour"></span>:00</span>
 
                         (<span><span v-html="(4 - booking.paxes)"></span> plazas libres</span>)
                     </span>
 
-                    <label>Plazas solicitadas</label>
+                    <div class="row">
+                        <div class="requestedPaxes">
+                            <label>Plazas solicitadas</label>
 
-                    <select name="selectedPaxes">
-                        <option v-for="i in (4-booking.paxes)">{{ i }}</option>
-                    </select>
+                            <select name="selectedPaxes">
+                                <option v-for="i in (4-booking.paxes)">{{ i }}</option>
+                            </select>
+                        </div>
 
-                    <button @click="sharingProposal(booking.id, $event)">Proponer</button>
+                        <button class="proposalButton" @click="sharingProposal(booking.id, $event)">Proponer</button>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -91,6 +96,7 @@
     .bookingList {
         .details {
             font-size: 17px;
+            margin-left: 8px;
         }
 
         .origen,
@@ -103,10 +109,16 @@
             margin: 0;
 
             li {
+                &:after {
+                    clear:both;
+                }
+
                 clear: both;
 
                 list-style: none;
                 margin-bottom: 1.5em;
+                padding-bottom: 1em;
+                border-bottom: 3px solid #ddd;
 
                 button {
                     font-size: 15px;
@@ -148,6 +160,34 @@
         position: relative;
         margin: 0 5px;
     }
+
+    .row {
+        display: table;
+        position: relative;
+        width: 100%;
+
+        .requestedPaxes {
+            width: 80%;
+            float: left;
+            display: table-cell;
+
+            select {
+                width: 70%;
+            }
+        }
+
+        .proposalButton {
+            width: 20%;
+            float: right;
+            margin: 0;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            display: table-cell;
+            vertical-align: bottom;
+        }
+    }
+
 </style>
 
 <script>
