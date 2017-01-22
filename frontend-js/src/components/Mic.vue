@@ -53,6 +53,7 @@
               max-width :1000px;
               padding : 0;
             li{
+                cursor : pointer;
                 padding :15px;
                 background: rgba(244, 67, 54, 0.80);
                 border-top: 2px solid white;
@@ -175,7 +176,11 @@
                 const target = ev.target
                 const textString = target.innerHTML
 
-                this.$router.push({name: 'results', params: {text: textString}})
+                this.$router.push({name: 'results', params: {
+                    text: textString,
+                    latitude: target.getAttribute('latitude'),
+                    longitude: target.getAttribute('longitude')
+                }})
             },
             autosuggest: function() {
                 const input = this.$refs['micSearch']
@@ -190,9 +195,11 @@
                     if (input.value.length > 0) {
                         for (let i = 0; i < results.length && i < maxResults; i++) {
                                 const listItem = window.document.createElement('li')
-                                listItem.innerHTML = results[i].name
+                                listItem.innerHTML = results[i].city_name
                                 listItem.classList.add('listitem')
                                 listItem.addEventListener('click', this.performSearch, false)
+                                listItem.setAttribute('latitude', results[i].latitude)
+                                listItem.setAttribute('longitude', results[i].longitude)
                                 resultContainer.appendChild(listItem)
                         }
                     }

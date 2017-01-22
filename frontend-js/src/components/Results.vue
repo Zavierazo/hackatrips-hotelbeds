@@ -32,7 +32,7 @@
 
 <script>
     import store from "../store"
-    import vueSlider from 'vue-slider-component/src/vue2-slider.vue';
+    import vueSlider from '../../node_modules/vue-slider-component/src/vue2-slider.vue';
 
     export default {
         data() {
@@ -65,6 +65,9 @@
                     }
                 }
             }
+        },
+        created() {
+            this.sliderOpts.value = 3
         },
         beforeRouteEnter (to, from, next) {
             if (typeof to.params.text !== 'undefined') {
