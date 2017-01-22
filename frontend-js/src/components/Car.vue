@@ -1,29 +1,7 @@
 <template>
     <div class="carWrapper">
-        <form @submit.prevent="confirmBooking">
-            <h3 class="heading-3">Reserva coche para compartir</h3>
-
-            <label for="carFrom">Elige tu trayecto</label>
-
-            <input ref="carFrom" id="carFrom" data-latitude="40.4655112" data-longitude="-3.6165726" value="IFEMA"
-                   placeholder="Selecciona un origen" disabled="disabled">
-            <input ref="carTo" id="carTo" data-latitude="40.4655112" data-longitude="-3.6165726" value="Demo"
-                   placeholder="Selecciona un destino" disabled="disabled">
-
-            <label for="paxes">Plazas</label>
-
-            <select ref="carPaxes" id="paxes">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-            </select>
-
-            <button>Reservar</button>
-        </form>
-
         <div class="bookingList" v-if="bookingList.length > 0">
-            <h3>Comparte coche</h3>
+            <h3>Comparte coche. Trayectos disponibles:</h3>
 
             <ul ref="bookingList">
                 <li v-for="booking in bookingList" :data-id="booking.id">
@@ -35,7 +13,6 @@
                     </svg>
 
                     <span class="destino" v-html="booking.destino"></span>
-
 
                     <span class="details">
                         a las <span><span v-html="booking.hour"></span>:00</span>
@@ -57,6 +34,28 @@
                 </li>
             </ul>
         </div>
+
+        <form @submit.prevent="confirmBooking">
+            <h3 class="heading-3">Reserva coche para compartir</h3>
+
+            <label for="carFrom">Elige tu trayecto</label>
+
+            <input ref="carFrom" id="carFrom" data-latitude="40.4655112" data-longitude="-3.6165726" value="IFEMA"
+                   placeholder="Selecciona un origen" disabled="disabled">
+            <input ref="carTo" id="carTo" data-latitude="40.4655112" data-longitude="-3.6165726" value="Demo"
+                   placeholder="Selecciona un destino" disabled="disabled">
+
+            <label for="paxes">Plazas</label>
+
+            <select ref="carPaxes" id="paxes">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+            </select>
+
+            <button>Reservar</button>
+        </form>
 
         <modal v-if="showModal" @close="showModal = false">
             <h3 slot="header">Propuesta para compartir coche</h3>
