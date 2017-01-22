@@ -23,6 +23,9 @@ import com.hacktrips.model.carto.CartoPostgreSQL;
 import com.hacktrips.model.carto.CartoPostgreSQL.TypeSQL;
 import com.hacktrips.model.minube.POIData;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -33,6 +36,13 @@ public class CartoService {
 	private static final String URL = "https://hackatrips11.carto.com/api/v2/sql";
 	private static final String API_KEY = "dc2d2b3c91dd85589dbb54d85b51ea9f5f35ffdd";
 	private static final String DATA_SET_01 = "data_group06_mass";
+
+	@Data
+	@NoArgsConstructor
+	public static class CartoRS {
+		private List<POIData> rows;
+		private String error;
+	}
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -60,15 +70,18 @@ public class CartoService {
 	}
 
 	public Boolean uploadData(String dataSet) {
-		return cartoCall(dataSet);
+		CartoRS cartoRS = cartoCall(dataSet);
+		return cartoRS.getError() == null;
 	}
 
 	public Boolean existsDataset(String dataSet) {
 		String select = "SELECT * FROM " + dataSet;
-		return cartoCall(select);
+		CartoRS cartoRS = cartoCall(select);
+		return cartoRS.getError() == null && cartoRS.getRows() != null && cartoRS.getRows().isEmpty();
 	}
 
-	private Boolean cartoCall(String dataSet) {
+	private CartoRS cartoCall(String dataSet) {
+		CartoRS cartoRS = new CartoRS();
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(URL).queryParam("api_key", API_KEY);
@@ -81,12 +94,13 @@ public class CartoService {
 			HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map,
 					headers);
 			System.out.println(dataSet);
-			ResponseEntity<String> response = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST,
-					request, String.class);
+			ResponseEntity<CartoRS> response = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST,
+					request, CartoRS.class);
+			return cartoRS;//response.getBody();
 		} catch (Exception e) {
 			log.error("review dataset", e);
-			return false;
+			cartoRS.setError(e.getMessage());
 		}
-		return true;
+		return cartoRS;
 	}
 }
