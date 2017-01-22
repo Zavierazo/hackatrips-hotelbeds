@@ -175,7 +175,11 @@
                 const target = ev.target
                 const textString = target.innerHTML
 
-                this.$router.push({name: 'results', params: {text: textString}})
+                this.$router.push({name: 'results', params: {
+                    text: textString,
+                    latitude: target.getAttribute('latitude'),
+                    longitude: target.getAttribute('longitude')
+                }})
             },
             autosuggest: function() {
                 const input = this.$refs['micSearch']
@@ -193,6 +197,8 @@
                                 listItem.innerHTML = results[i].city_name
                                 listItem.classList.add('listitem')
                                 listItem.addEventListener('click', this.performSearch, false)
+                                listItem.setAttribute('latitude', results[i].latitude)
+                                listItem.setAttribute('longitude', results[i].longitude)
                                 resultContainer.appendChild(listItem)
                         }
                     }

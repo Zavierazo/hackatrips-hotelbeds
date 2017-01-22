@@ -67,10 +67,14 @@
         beforeMount: function() {
             if (typeof this.$route.params.text !== 'undefined') {
                 this.$data.locationCaption = this.$route.params.text
+                this.$data.longitude = this.$route.params.longitude
+                this.$data.latitude = this.$route.params.latitude
             }
         },
         mounted: function () {
             this.setCaption(this.$data.locationCaption)
+
+            // TODO: usar this.$data.latitude + this.$data.longitude
 
             cartodb.createVis('map', 'http://documentation.cartodb.com/api/v2/viz/2b13c956-e7c1-11e2-806b-5404a6a683d5/viz.json', {
                 shareable: true,

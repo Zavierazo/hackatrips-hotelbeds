@@ -66,6 +66,9 @@
                 }
             }
         },
+        created() {
+            this.sliderOpts.value = 3
+        },
         beforeRouteEnter (to, from, next) {
             if (typeof to.params.text !== 'undefined') {
                 setTimeout(function() {
