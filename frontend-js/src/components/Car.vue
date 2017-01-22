@@ -122,10 +122,6 @@
                 padding-bottom: 1em;
                 border-bottom: 3px solid #ddd;
 
-                button {
-                    font-size: 15px;
-                    padding: 10px;
-                }
             }
         }
     }
@@ -144,7 +140,7 @@
 
     }
 
-    button {
+    button, .proposalButton {
         background: #F44336;
         padding: 15px;
         border: 0;
@@ -153,6 +149,7 @@
         margin: 30px 0 30px 0;
         float: right;
         font-size: 18px;
+        min-width: 150px;
     }
 
     .arrowIcon {
@@ -179,7 +176,6 @@
         }
 
         .proposalButton {
-            width: 20%;
             float: right;
             margin: 0;
             position: absolute;
