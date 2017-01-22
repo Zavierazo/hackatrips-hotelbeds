@@ -103,7 +103,7 @@ public class PlacesService {
             sb.append("&radius=" + String.valueOf(radio));
             sb.append("&types=" + String.valueOf(types));
             sb.append("&name=" + String.valueOf(name));
-            sb.append("&key=" + apiKey);//sb.append("&key=" + API_KEY);
+            sb.append("&key=" + apiKey);
             
             URL url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
@@ -133,7 +133,6 @@ public class PlacesService {
 
             for (int i = 0; i < predsJsonArray.length(); i++) {
                 Place place = new Place();
-                //place.reference = predsJsonArray.getJSONObject(i).getString("reference");
                 place.placeId = predsJsonArray.getJSONObject(i).getString("place_id");
                 place.name = predsJsonArray.getJSONObject(i).getString("name");
                 resultList.add(details1(place.placeId,apiKey));
@@ -183,7 +182,6 @@ public class PlacesService {
             JSONObject jsonObj = new JSONObject(jsonResults.toString()).getJSONObject("result");
             
             place = new Place();
-            //place.icon = jsonObj.getString("icon");
             place.name = jsonObj.getString("name");
             
             JSONObject jsonOH = new JSONObject(jsonObj.getString("opening_hours"));
@@ -212,112 +210,5 @@ public class PlacesService {
         place.dayHours=dayHours;
         return place;
     }
-    
-    
-    /*
-    public static Place details2(String placeId, String apiKey) {
-        HttpURLConnection conn = null;
-        StringBuilder jsonResults = new StringBuilder();
-        try {
-        	
-            StringBuilder sb = new StringBuilder(PLACES_API_BASE);
-            sb.append(TYPE_DETAILS);
-            sb.append(OUT_JSON);
-            sb.append("?placeid="+placeId);
-            sb.append("&key=" + apiKey);
-
-            URL url = new URL(sb.toString());
-            conn = (HttpURLConnection) url.openConnection();
-            InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-            int read;
-            char[] buff = new char[1024];
-            while ((read = in.read(buff)) != -1) {
-                jsonResults.append(buff, 0, read);
-            }
-        } catch (MalformedURLException e) {
-            return null;
-        } catch (IOException e) {
-            return null;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-
-        Place place = null;
-        try {
-            JSONObject jsonObj = new JSONObject(jsonResults.toString()).getJSONObject("result");
-
-            place = new Place();
-            place.icon = jsonObj.getString("icon");
-            place.name = jsonObj.getString("name");
-            place.formatted_address = jsonObj.getString("formatted_address");
-            if (jsonObj.has("formatted_phone_number")) {
-                place.formatted_phone_number = jsonObj.getString("formatted_phone_number");
-            }
-            
-            JSONObject jsonOH = new JSONObject(jsonObj.getString("opening_hours"));
-            ObjectMapper mapper = new ObjectMapper();
-            
-			//Periods obj = mapper.readValue(jsonOH.getString("periods"), Periods.class);
-			
-            
-        } catch (JSONException e) {
-        }
-
-        return place;
-    }
-
-    
-   
-    public static Place details(String placeId, String apiKey) {
-        HttpURLConnection conn = null;
-        StringBuilder jsonResults = new StringBuilder();
-        try {
-        	
-            StringBuilder sb = new StringBuilder(PLACES_API_BASE);
-            sb.append(TYPE_DETAILS);
-            sb.append(OUT_JSON);
-            sb.append("?placeid="+placeId);
-            sb.append("&key=" + apiKey);
-
-            URL url = new URL(sb.toString());
-            conn = (HttpURLConnection) url.openConnection();
-            InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
-            int read;
-            char[] buff = new char[1024];
-            while ((read = in.read(buff)) != -1) {
-                jsonResults.append(buff, 0, read);
-            }
-        } catch (MalformedURLException e) {
-            return null;
-        } catch (IOException e) {
-            return null;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-
-        Place place = null;
-        try {
-            JSONObject jsonObj = new JSONObject(jsonResults.toString()).getJSONObject("result");
-
-            place = new Place();
-            place.icon = jsonObj.getString("icon");
-            place.name = jsonObj.getString("name");
-            place.formatted_address = jsonObj.getString("formatted_address");
-            if (jsonObj.has("formatted_phone_number")) {
-                place.formatted_phone_number = jsonObj.getString("formatted_phone_number");
-            }
-            place.reviews = jsonObj.getJSONObject("reviews");
-        } catch (JSONException e) {
-        }
-
-        return place;
-    }
-    */
     
 }

@@ -26,8 +26,6 @@ public class PlacesController {
     @Autowired
     private CacheManager cacheManager;
 
-    //GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyBl1t15EoJCH0oIhZzsJbLRbWiWIYb3Li8");
-    
     @RequestMapping(method = RequestMethod.GET, value = "/search", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
