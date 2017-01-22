@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hacktrips.config.contamination.ContaminationData;
 import com.hacktrips.model.minube.POIData;
 
 import lombok.Data;
@@ -32,6 +33,7 @@ public class CartoPostgreSQL {
 
 	private TypeSQL typeSQL;
 	private List<POIData> pois;
+	private Boolean subset = false;
 
 	public CartoPostgreSQL(String tableName, List<POIData> pois) {
 		this.tableName = tableName;
@@ -67,9 +69,19 @@ public class CartoPostgreSQL {
 			// can add more TODO add java queue....
 			queueToTables.clear();
 		} else {
-			for (Field field : fields) {
-				columns.put(field.getName(), field.getType());
+			if (subset) {
+				for (Field field : fields) {
+					if (field.getType().isAssignableFrom(ContaminationData.class)) {
+						columns.put(field.getName(), field.getType());
+						break;
+					}
+				}
+			} else {
+				for (Field field : fields) {
+					columns.put(field.getName(), field.getType());
+				}
 			}
+
 		}
 	}
 
@@ -82,8 +94,8 @@ public class CartoPostgreSQL {
 		// private Double distance;
 		// private Double prob;
 		// private Map<Integer, Double> contaminationByHour = new HashMap<>();
-		Map<String, Object> values = new HashMap<>();
 		for (POIData poi : pois) {
+			Map<String, Object> values = new HashMap<>();
 			values.put("id", poi.getId());
 			values.put("name", poi.getName());
 			values.put("latitude", poi.getLatitude());
@@ -91,6 +103,7 @@ public class CartoPostgreSQL {
 			values.put("picture_url", poi.getPicture_url());
 			values.put("distance", poi.getDistance());
 			values.put("prob", poi.getProb());
+			values.put("contaminationByHour", poi.getContaminationByHour());
 			valuesOfColumns.add(values);
 		}
 	}
@@ -134,7 +147,6 @@ public class CartoPostgreSQL {
 
 			SortedSet<String> keys = new TreeSet<String>(mapValue.keySet());
 
-			
 			str.append(StringUtils.SPACE);
 			str.append(INSERT_INTO);
 			str.append(StringUtils.SPACE);
@@ -142,15 +154,15 @@ public class CartoPostgreSQL {
 			str.append("(");
 			int count = 0;
 			for (String keyValues : keys) {
-				//for (String key : columns.keySet()) {
-					//if (key.equalsIgnoreCase(keyValues)) {
-						str.append(keyValues);
-						str.append(StringUtils.SPACE);
-						if (++count < mapValue.size()) {
-							str.append(",");
-						}
-					//}
-				//}
+				// for (String key : columns.keySet()) {
+				// if (key.equalsIgnoreCase(keyValues)) {
+				str.append(keyValues);
+				str.append(StringUtils.SPACE);
+				if (++count < mapValue.size()) {
+					str.append(",");
+				}
+				// }
+				// }
 			}
 			str.append(")");
 			str.append(StringUtils.SPACE);
@@ -159,8 +171,8 @@ public class CartoPostgreSQL {
 			str.append("(");
 			int count2 = 0;
 			for (String keyValues : keys) {
-				//for (String key : columns.keySet()) {
-					//if (key.equalsIgnoreCase(keyValues)) {
+				// for (String key : columns.keySet()) {
+				// if (key.equalsIgnoreCase(keyValues)) {
 				Object value = mapValue.get(keyValues);
 				if (value != null && value instanceof String) {
 					str.append("'");
@@ -172,12 +184,12 @@ public class CartoPostgreSQL {
 					else
 						str.append(0);
 				}
-						
-						if (++count2 < mapValue.size()) {
-							str.append(",");
-						}
-					//}
-				//}
+
+				if (++count2 < mapValue.size()) {
+					str.append(",");
+				}
+				// }
+				// }
 			}
 			str.append(StringUtils.SPACE);
 			str.append(");");
