@@ -30,7 +30,7 @@ const appServer = function (config) {
     })
 
     app.get('/api/suggest', (req, res) => {
-        const endPoint = config.services.backend.base + '/minube/textSearch'
+        const endPoint = config.services.backend.base + '/minube/textSearchV2'
 
         const queryText = req.query.q
 

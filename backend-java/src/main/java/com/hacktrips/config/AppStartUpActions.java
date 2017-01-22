@@ -16,6 +16,7 @@ import com.hacktrips.config.contamination.ContaminationData;
 import com.hacktrips.config.contamination.ContaminationReader;
 import com.hacktrips.controller.MinubeController;
 import com.hacktrips.enums.CacheEnum;
+import com.hacktrips.service.DestinationsLoaderService;
 import com.hacktrips.util.Utils;
 import lombok.AllArgsConstructor;
 
@@ -25,19 +26,22 @@ public class AppStartUpActions {
     private MinubeController minubeController;
     @Autowired
     private CacheManager cacheManager;
+    @Autowired
+    private DestinationsLoaderService destinationLoader;
 
     // Any startup sync action
     @PostConstruct
     public void startUpActionsSync() throws FileNotFoundException, IOException {
         Utils.ignoreSSL(); //Used to ignore SSL when atack to a https url
         // Start async tasks thread
-        StartUpActionsAsync startActions = new StartUpActionsAsync();
-        startActions.start();
+
         Map<String, ContaminationData> contamination = ContaminationReader.readCSV();
         GuavaCache guavaCache = (GuavaCache) cacheManager.getCache(CacheEnum.CONTAMINATION_CACHE);
         Cache<Object, Object> cache = guavaCache.getNativeCache();
         Map<Object, Object> cacheMap = cache.asMap();
         cacheMap.putAll(contamination);
+        StartUpActionsAsync startActions = new StartUpActionsAsync();
+        startActions.start();
     }
 
     @AllArgsConstructor
@@ -45,7 +49,8 @@ public class AppStartUpActions {
 
         @Override
         public void run() {
-            minubeController.byLatitude(40.4137859, -3.6943158);
+            destinationLoader.load(63);
+            //            minubeController.byLatitude(40.4137859, -3.6943158);
         }
 
     }

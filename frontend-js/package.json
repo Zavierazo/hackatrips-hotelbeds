@@ -39,6 +39,7 @@
     "leaflet": "^0.7.7",
     "md5": "^2.1.0",
     "minimist": "^1.2.0",
+    "moment": "^2.17.1",
     "node-sass": "^3.7.0",
     "object-assign": "^4.1.0",
     "qs": "^6.3.0",
@@ -58,6 +59,8 @@
     "vue-i18n-plugin": "^0.2.2",
     "vue-loader": "^10.0.0",
     "vue-router": "^2.1.1",
+    "vue-slider-component": "^2.1.2",
+    "vue-style-loader": "^1.0.0",
     "vue-template-compiler": "^2.1.0",
     "vuex": "^2.1.1",
     "winston": "^2.2.0"

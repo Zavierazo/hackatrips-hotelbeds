@@ -10,8 +10,8 @@
             </svg>
         </div>
         <div class="mic__bottom">
-            <label for="mic-search" class="mic__caption">Manten pulsado para grabar o introduce tu búsqueda</label>
-            <input type="text" @input="autosuggest" ref="micSearch" id="mic-search" class="mic__input"
+            <label for="mic-search" class="mic__caption">Mantén pulsado para grabar o introduce tu búsqueda</label>
+            <input data-function="input-search" type="text" @input="autosuggest" ref="micSearch" id="mic-search" class="mic__input"
                    placeholder="¿Dónde quieres ir?">
             <ul class="mic__resultlist" ref="autosuggestResults">
             </ul>
@@ -19,18 +19,18 @@
     </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
     .mic {
         display: block;
         width: 100%;
-        transform: translate(-50%, -50%);
+        transform: translateX(-50%) translateY(-50%);
         position: absolute;
         left: 50%;
         top: 50%;
 
         &__icon {
             margin: 0 auto;
-            width: 200px;
+            width: 150px;
             cursor: pointer;
             background: #F44336;
 
@@ -46,10 +46,25 @@
         &__bottom {
             text-align: center;
         }
+         &__resultlist{
+              width : 60%;
+              margin : 0 auto;
+              text-align : left;
+              max-width :1000px;
+              padding : 0;
+            li{
+                cursor : pointer;
+                padding :15px;
+                background: rgba(244, 67, 54, 0.80);
+                border-top: 2px solid white;
+                color: white;
+            }
+        }
         &__input {
-            padding: 15px;
+             padding: 15px;
             font-size: 16px;
-            min-width: 300px;
+            width: 30%;
+
             border: 0;
             background: transparent;
             border-bottom: 2px solid #F44336;
@@ -57,12 +72,12 @@
             &:focus {
                 outline: 0;
 
-            }
+             }
 
-        }
-        &__caption {
-            display: block;
-            margin: 20px;
+         }
+        &__caption{
+             display : block;
+             margin : 20px;
             color: #333;
             text-align: center;
             font-size: 24px;
@@ -80,11 +95,61 @@
 <script>
     import anime from 'animejs'
     import textInput from '../services/textInput'
-    //import anime from 'cartodb.js'
-    //this.$el
+
     export default {
         props: ['value', 'placeholder'],
         mounted: function () {
+            const durationEffect = 1500;
+            const recordBox = document.querySelector("[data-function='record--box']");
+            const input = document.querySelector("[data-function='input-search']");
+            var open = false;
+
+
+            input.addEventListener('focus',function(e){
+                console.log(this.value.length)
+
+                if(this.value.length == 0 && open == false) {
+                    anime({
+                        targets: this,
+                        width: ["30%", "60%"],
+                        duration: durationEffect,
+                        easing: "easeInOutQuad"
+                    })
+
+                    //ICON MIC EFFECT
+                    anime({
+                        targets: recordBox,
+                        width: "50px",
+                        padding: "10px",
+                        duration: durationEffect -500,
+                    })
+
+
+                    open = true;
+                }
+            }, true);
+            input.addEventListener('blur',function(e){
+                anime.remove(this);
+                var currentWidth = anime.getValue(this, "width");
+                console.log(currentWidth)
+                if(this.value.length < 1) {
+                    anime({
+                        targets: this,
+                        width: ["60%", "30%"],
+                        duration: durationEffect,
+                        easing: "easeInOutQuad"
+                    })
+
+                    anime({
+                        targets: recordBox,
+                        width: "150px",
+                        padding: "50px",
+                        duration: durationEffect -500,
+                    });
+
+                    open = false;
+                }
+            }, true);
 
 //            anime({
 //                targets: "[data-function='record--box']",
@@ -107,12 +172,21 @@
         methods: {
             record: function () {
             },
+            performSearch: function(ev) {
+                const target = ev.target
+                const textString = target.innerHTML
+
+                this.$router.push({name: 'results', params: {
+                    text: textString,
+                    latitude: target.getAttribute('latitude'),
+                    longitude: target.getAttribute('longitude')
+                }})
+            },
             autosuggest: function() {
                 const input = this.$refs['micSearch']
                 const resultContainer = this.$refs['autosuggestResults']
 
                 textInput.send(input.value).then( (response) => {
-
                     const results = response.data
                     const maxResults = 10
 
@@ -121,13 +195,16 @@
                     if (input.value.length > 0) {
                         for (let i = 0; i < results.length && i < maxResults; i++) {
                                 const listItem = window.document.createElement('li')
-                                listItem.innerHTML = results[i].name
+                                listItem.innerHTML = results[i].city_name
                                 listItem.classList.add('listitem')
+                                listItem.addEventListener('click', this.performSearch, false)
+                                listItem.setAttribute('latitude', results[i].latitude)
+                                listItem.setAttribute('longitude', results[i].longitude)
                                 resultContainer.appendChild(listItem)
                         }
                     }
 
-                    console.log(response)
+                    //console.log(response)
                 }).catch ( (error) => {
                     console.log(error)
                 })

@@ -52,18 +52,23 @@ public class ContaminationService {
         List<ContaminationData> cerca = new ArrayList<>();
         double minDistance = Double.MAX_VALUE;
         double maxDistance = Double.MIN_VALUE;
-        for (Object data : cacheMap.values()) {
-            ContaminationData cachedData = (ContaminationData) data;
-            Double distance = Utils.distance(latitude, cachedData.getLatitude(), longitude, cachedData.getLongitude());
-            if (distance < 5000) {
-                cerca.add(cachedData);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                }
-                if (distance > maxDistance) {
-                    maxDistance = distance;
+        int radioBusqueda = 5000;
+        while (cerca.isEmpty()) {
+            for (Object data : cacheMap.values()) {
+                ContaminationData cachedData = (ContaminationData) data;
+                Double distance = Utils.distance(latitude, cachedData.getLatitude(), longitude, cachedData.getLongitude());
+                if (distance < radioBusqueda) {
+                    cerca.add(cachedData);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                    }
+                    if (distance > maxDistance) {
+                        maxDistance = distance;
+                    }
                 }
             }
+            //si no se encuentra nada en 5km, vuelve a repetir la busqueda con el doble de distancia
+            radioBusqueda = radioBusqueda * 2;
         }
         for (int hora = 1; hora <= 24; hora++) {
             double weight = 0.0;
@@ -74,17 +79,16 @@ public class ContaminationService {
                 size += normal;
                 weight += data.getContaminationByHour().get(hora) * normal;
             }
-            if (size > 0.0) {
-                contamination.getContaminationByHour().put(hora, weight / size);
-            } else {
-                contamination.getContaminationByHour().put(hora, weight);
-            }
+            contamination.getContaminationByHour().put(hora, weight / size);
         }
         return contamination;
     }
 
-    private double normalizedValue(double value, double max, double min) {
-        return (value - min) / (max - min);
+    private static double normalizedValue(double value, double max, double min) {
+        if (max == min) {
+            return 0.5;
+        }
+        return 1 - ((value - min) / (max - min));
     }
 
     public ContaminationData getContaminationMean(Double latitude, Double longitude) {
