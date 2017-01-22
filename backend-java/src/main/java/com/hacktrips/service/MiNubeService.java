@@ -75,4 +75,24 @@ public class MiNubeService {
                 rest.exchange(builder.build().encode().toUri(), HttpMethod.GET, entity, POIData[].class);
         return response.getBody();
     }
+
+    @Cacheable(value = CacheEnum.POIS_MINUBE_CACHE, unless = "#result == null or #result.length==0")
+    public POIData[] getPage(String countryId, String cityId, Integer page, Integer category) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/json");
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://papi.minube.com/pois")
+                .queryParam("lang", "es")
+                .queryParam("country_id", countryId)
+                .queryParam("city_id", cityId)
+                .queryParam("page", page)
+                .queryParam("api_key", "cbw3xX5uMmVh7ZXu");
+        if (category != null) {
+            builder.queryParam("subcategory_id", category);
+        }
+
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        ResponseEntity<POIData[]> response =
+                rest.exchange(builder.build().encode().toUri(), HttpMethod.GET, entity, POIData[].class);
+        return response.getBody();
+    }
 }

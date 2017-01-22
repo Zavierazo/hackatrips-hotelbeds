@@ -7,8 +7,8 @@ El Hackathon consiste en un concurso de desarrollo de aplicaciones en el que par
 
 #APIS
 
-- [ ] Microsoft: Api de servicios cognitivos https://azure.microsoft.com/en-us/services/cognitive-services/
-- [ ] Cabify: Api de alquiler de coches con chofer privado. http://developers.cabify.com/
-- [ ] Carto: Api de mapas https://carto.com/docs
-- [ ] Minube: Api de Puntos de Interes http://papi.minube.com/docs/ http://www.minube.com/api/documentation
+- [x] Microsoft: Api de servicios cognitivos https://azure.microsoft.com/en-us/services/cognitive-services/
+- [x] Cabify: Api de alquiler de coches con chofer privado. http://developers.cabify.com/
+- [x] Carto: Api de mapas https://carto.com/docs
+- [x] Minube: Api de Puntos de Interes http://papi.minube.com/docs/ http://www.minube.com/api/documentation
 - [ ] Hotelbeds: Api de hoteles
