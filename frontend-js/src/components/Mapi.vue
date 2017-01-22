@@ -10,8 +10,7 @@
             </a>
             <h3 ref="locationCaption" class="map__header-title" v-html="locationCaption"></h3>
         </div>
-        <div id="map"></div>
-    </div>
+        <iframe width="100%" height="520" frameborder="0" src="https://cartoworkshops.carto.com/u/hackatrips11/builder/d5998474-e056-11e6-9f95-0e233c30368f/embed" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>    </div>
 </template>
 
 <style scoped lang="scss">
@@ -74,31 +73,31 @@
         mounted: function () {
             this.setCaption(this.$data.locationCaption)
 
-            var map=L.map('map', {center: [this.$data.latitude,this.$data.longitude],zoom:12});
-            L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
-                attribution:'The crack team'
-            }).addTo(map);
-
-            var clusterSQL = "SELECT * FROM data_group06_mass;";
-
-            cartodb.createLayer(map, {
-                user_name:'hackatrips11',
-                type:'cartodb',
-                sublayers:[{
-                    sql: clusterSQL,
-                    cartocss:"#layer{  marker-width: 12;  marker-fill: #FD8D3C;  marker-line-width: 1.5;  marker-fill-opacity: 1;  marker-line-opacity: 1;  marker-line-color: #fff; marker-allow-overlap: true;} #layer::labels { text-size: 6; text-fill: #fff; text-opacity: 0.8;text-name: [points_count]; text-face-name: 'DejaVu Sans Book'; text-halo-fill: #FFF; text-halo-radius: 0;text-allow-overlap: true;[zoom>11]{ text-size: 16; }[points_count = 1]{ text-size: 0; }}",
-                    interactivity: 'cartodb_id, name, pop_max'
-                }],
-                extra_params: {
-                    map_key: "dc2d2b3c91dd85589dbb54d85b51ea9f5f35ffdd"
-                }
-            },{https:true})
-                .on('done', function(layer){
-                    console.log(layer)
-                    console.log("s");
-//                    cdb.vis.Vis.addInfowindow(map,layer.getSubLayer(0), ['points_count', 'contenido'],{infowindowTemplate: $('#infowindow_template').html()});
-                })
-                .addTo(map);
+//            var map=L.map('map', {center: [this.$data.latitude,this.$data.longitude],zoom:12});
+//            L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
+//                attribution:'The crack team'
+//            }).addTo(map);
+//
+//            var clusterSQL = "SELECT * FROM data_group06_mass;";
+//
+//            cartodb.createLayer(map, {
+//                user_name:'hackatrips11',
+//                type:'cartodb',
+//                sublayers:[{
+//                    sql: clusterSQL,
+//                    cartocss:"#layer{  marker-width: 12;  marker-fill: #FD8D3C;  marker-line-width: 1.5;  marker-fill-opacity: 1;  marker-line-opacity: 1;  marker-line-color: #fff; marker-allow-overlap: true;} #layer::labels { text-size: 6; text-fill: #fff; text-opacity: 0.8;text-name: [points_count]; text-face-name: 'DejaVu Sans Book'; text-halo-fill: #FFF; text-halo-radius: 0;text-allow-overlap: true;[zoom>11]{ text-size: 16; }[points_count = 1]{ text-size: 0; }}",
+//                    interactivity: 'cartodb_id, name, pop_max'
+//                }],
+//                extra_params: {
+//                    map_key: "dc2d2b3c91dd85589dbb54d85b51ea9f5f35ffdd"
+//                }
+//            },{https:true})
+//                .on('done', function(layer){
+//                    console.log(layer)
+//                    console.log("s");
+////                    cdb.vis.Vis.addInfowindow(map,layer.getSubLayer(0), ['points_count', 'contenido'],{infowindowTemplate: $('#infowindow_template').html()});
+//                })
+//                .addTo(map);
 
 //            cartodb.createVis('map', 'http://documentation.cartodb.com/api/v2/viz/2b13c956-e7c1-11e2-806b-5404a6a683d5/viz.json', {
 //                shareable: true,
