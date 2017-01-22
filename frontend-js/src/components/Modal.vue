@@ -60,7 +60,7 @@
 
     .modal-header h3 {
         margin-top: 0;
-        color: #f00;
+        color: #F44336;
     }
 
     .modal-body {
@@ -78,7 +78,7 @@
         margin-bottom: 0.4em;
 
         button {
-            background-color: #f00;
+            background-color: #F44336;
             border: 0;
             padding: 0.8em;
             color: #fff;
