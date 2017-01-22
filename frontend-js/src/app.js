@@ -17,7 +17,7 @@ import Mapi from "./components/Mapi.vue"
 import audioInput from './services/audioInput'
 import textInput from './services/textInput'
 
-/*
+
 audioInput.init()
 
 setTimeout(function () {
@@ -31,7 +31,7 @@ setTimeout(function () {
 setTimeout(function() {
     audioInput.send()
 }, 3500);
-*/
+ 
 
 // Register Vue.js plugins
 Vue.use(VueCookie)
