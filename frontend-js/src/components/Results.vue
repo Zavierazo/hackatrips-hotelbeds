@@ -1,13 +1,32 @@
 <template>
     <div>
         <mapi></mapi>
-        <vue-slider class="slider" v-bind="sliderOpts" ref="slider" v-model="sliderOpts.value"></vue-slider>
+        <div class="timeSelect">
+            <span class="sliderCaption">Hora</span>
+            <div class="sliderWrapper">
+                <vue-slider class="slider" v-bind="sliderOpts" ref="slider" v-model="sliderOpts.value"></vue-slider>
+            </div>
+        </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
-    .slider {
-        margin-top: 2.5em;
+    .timeSelect {
+        width: 80%;
+        margin: 3em auto 1.5em;
+    }
+    .sliderCaption {
+        float: left;
+        width: 10%;
+        display: inline-block;
+        font-size: 1.8em;
+        font-weight: 200;
+        font-color: #333;
+    }
+    .sliderWrapper {
+        width: 90%;
+        float: right;
+        display: inline-block;
     }
 </style>
 
@@ -20,9 +39,9 @@
             return {
                 sliderOpts: {
                     height: 10,
-                    value: 0,
+                    value: 1,
                     dotSize: 20,
-                    min: 0,
+                    min: 1,
                     max: 24,
                     interval: 1,
                     disabled: false,
@@ -32,7 +51,18 @@
                     lazy: true,
                     tooltip: 'always',
                     piecewise: true,
-                    formatter: "{value}:00"
+                    formatter: "{value}:00",
+                    tooltipStyle: {
+                        "backgroundColor": "#666",
+                        "borderColor": "#666"
+                    },
+                    bgStyle: {
+                      "backgroundColor": "#efefef",
+                      //"boxShadow": "inset 0.5px 0.5px 3px 1px rgba(0,0,0,.36)"
+                    },
+                    processStyle: {
+                      "backgroundColor": "#999"
+                    }
                 }
             }
         },

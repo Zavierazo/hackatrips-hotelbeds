@@ -10,7 +10,7 @@
             </svg>
         </div>
         <div class="mic__bottom">
-            <label for="mic-search" class="mic__caption">Manten pulsado para grabar o introduce tu búsqueda</label>
+            <label for="mic-search" class="mic__caption">Mantén pulsado para grabar o introduce tu búsqueda</label>
             <input data-function="input-search" type="text" @input="autosuggest" ref="micSearch" id="mic-search" class="mic__input"
                    placeholder="¿Dónde quieres ir?">
             <ul class="mic__resultlist" ref="autosuggestResults">
