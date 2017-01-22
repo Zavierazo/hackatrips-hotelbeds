@@ -4,7 +4,7 @@
             <h3>Comparte coche. Trayectos disponibles:</h3>
 
             <ul ref="bookingList">
-                <li v-for="booking in bookingList" :data-id="booking.id">
+                <li v-for="booking in bookingList" :data-id="booking.id" :data-paxes="4 - booking.paxes">
                     <span class="origen" v-html="booking.origen"></span>
 
                     <svg class="arrowIcon" width="1792" height="1792" viewBox="0 0 1792 1792"
@@ -29,7 +29,7 @@
                             </select>
                         </div>
 
-                        <button class="proposalButton" @click="sharingProposal(booking.id, $event)">Proponer</button>
+                        <button class="proposalButton" @click="sharingProposal($event)">Proponer</button>
                     </div>
                 </li>
             </ul>
@@ -59,7 +59,10 @@
 
         <modal v-if="showModal" @close="showModal = false">
             <h3 slot="header">Propuesta para compartir coche</h3>
-            <div slot="body">Se ha enviado una propuesta al usuario que confirmó la reserva <strong><span v-html="selectedBooking"></span></strong> para ocupar <strong><span v-html="selectedPaxes"></span></strong> de sus plazas libres.</div>
+            <div slot="body">Se ha enviado una propuesta al usuario que confirmó la reserva
+                <strong><span v-html="selectedBooking"></span></strong> para ocupar
+                <strong><span v-html="selectedPaxes"></span></strong> de sus plazas libres.
+            </div>
         </modal>
     </div>
 </template>
@@ -109,7 +112,7 @@
 
             li {
                 &:after {
-                    clear:both;
+                    clear: both;
                 }
 
                 clear: both;
@@ -199,7 +202,8 @@
                 bookingList: [],
                 showModal: false,
                 selectedBooking: '',
-                selectedPaxes: 0
+                selectedPaxes: 0,
+                availablePaxes: 4
             }
         },
         mounted() {
@@ -218,25 +222,31 @@
             })
         },
         methods: {
-            sharingProposal(bookingId, event) {
-                const els = event.target.parentNode.childNodes;
+            sharingProposal(event) {
+                const self = this
+                const parent = event.target.parentNode
+                const els = parent.childNodes
+
+                console.log(els)
 
                 els.forEach( (el) => {
-                    console.log(el)
-                    if (el.name == 'selectedPaxes') {
-                        this.$data.selectedPaxes = el.value
-                    }
+                    el.childNodes.forEach( (el) => {
+                        if (el.name == 'selectedPaxes') {
+                            self.$data.selectedPaxes = el.value
+                        }
+                    })
                 })
 
-                this.$data.selectedBooking = bookingId
+                self.$data.selectedBooking = parent.parentNode.getAttribute('data-id')
+                self.$data.availablePaxes = parent.parentNode.getAttribute('data-paxes')
 
-                this.$data.showModal = true
+                self.$data.showModal = true
 
                 const endPoint = 'http://127.0.0.1:8080/cabify/update'
 
                 const queryString = qs.stringify({
-                    'id': this.$data.selectedBooking,
-                    'paxes': this.$data.selectedPaxes
+                    'id': self.$data.selectedBooking,
+                    'paxes': parseInt(self.$data.paxes) + parseInt(self.$data.selectedPaxes)
                 })
 
                 axios.get(endPoint + '?' + queryString).then((response) => {
@@ -244,11 +254,12 @@
                 })
             },
             confirmBooking() {
+                const self = this
                 const endPoint = "http://127.0.0.1:8080/cabify/booking"
 
-                const carFrom = this.$refs['carFrom']
-                const carTo = this.$refs['carTo']
-                const carPaxes = this.$refs['carPaxes']
+                const carFrom = self.$refs['carFrom']
+                const carTo = self.$refs['carTo']
+                const carPaxes = self.$refs['carPaxes']
 
                 const queryString = qs.stringify({
                     'latitudeOrigen': carFrom.getAttribute('data-latitude'),
@@ -258,13 +269,14 @@
                     'nameOrigen': carFrom.value,
                     'nameDestino': carTo.value,
                     'paxes': carPaxes.value,
-                    'hour': this.$parent.$refs['slider'].currentValue
+                    'hour': self.$parent.$refs['slider'].currentValue
                 })
 
                 axios.get(endPoint + '?' + queryString).then((response) => {
-                    console.log(response)
+                    self.$data.bookingList = response.data
                 })
             }
         }
     }
+
 </script>
