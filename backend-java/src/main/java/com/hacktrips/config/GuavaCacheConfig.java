@@ -19,7 +19,7 @@ public class GuavaCacheConfig {
     @Bean
     public CacheManager cacheManager() {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
-        List<GuavaCache> caches = new ArrayList<GuavaCache>();
+        List<GuavaCache> caches = new ArrayList<>();
         for (CacheEnum cache : CacheEnum.values()) {
             CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
             if (cache.getReadExpiration() > 0) {
