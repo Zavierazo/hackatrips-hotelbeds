@@ -152,6 +152,8 @@ public class CartoPostgreSQL {
 		str.append("contaminationId integer,");
 		str.append("hour integer,");
 		str.append("level decimal,");
+		str.append("latitude decimal,");
+		str.append("longitude decimal,");
 		str.append("PRIMARY KEY(contaminationId, hour)");
 		str.append(");");
 		return str.toString();
@@ -263,7 +265,9 @@ public class CartoPostgreSQL {
 							// Add child columns of subset
 							str.append("contaminationId,");
 							str.append("hour,");
-							str.append("level");
+							str.append("level,");
+							str.append("latitude,");
+							str.append("longitude");
 							str.append(")");
 							str.append(StringUtils.SPACE);
 							str.append(VALUES);
@@ -274,6 +278,10 @@ public class CartoPostgreSQL {
 							str.append(hour);
 							str.append(",");
 							str.append(contamination.getContaminationByHour().get(hour));
+							str.append(",");
+							str.append(contamination.getLatitude());
+							str.append(",");
+							str.append(contamination.getLongitude());
 							str.append(StringUtils.SPACE);
 							str.append(");");
 						}
