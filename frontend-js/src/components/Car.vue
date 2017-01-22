@@ -1,7 +1,7 @@
 <template>
     <div class="carWrapper">
         <form @submit.prevent="confirmBooking">
-            <h3 class="heading-3">Reserva transporte para compartir</h3>
+            <h3 class="heading-3">Reserva coche para compartir</h3>
 
             <label for="carFrom">Elige tu trayecto</label>
 
@@ -11,6 +11,7 @@
                    placeholder="Selecciona un destino" disabled="disabled">
 
             <label for="paxes">Plazas</label>
+
             <select ref="carPaxes" id="paxes">
                 <option>1</option>
                 <option>2</option>
@@ -22,23 +23,40 @@
         </form>
 
         <div class="bookingList" v-if="bookingList.length > 0">
-            <h3>Comparte con alguien</h3>
+            <h3>Comparte coche</h3>
 
             <ul ref="bookingList">
                 <li v-for="booking in bookingList" :data-id="booking.id">
-                    <span v-html="booking.origen"></span>
+                    <span class="origen" v-html="booking.origen"></span>
+
                     <svg class="arrowIcon" width="1792" height="1792" viewBox="0 0 1792 1792"
                          xmlns="http://www.w3.org/2000/svg">
                         <path d="M1728 893q0 14-10 24l-384 354q-16 14-35 6-19-9-19-29v-224h-1248q-14 0-23-9t-9-23v-192q0-14 9-23t23-9h1248v-224q0-21 19-29t35 5l384 350q10 10 10 23z"/>
                     </svg>
-                    <span v-html="booking.destino"></span>
 
-                    <span><span v-html="booking.hour"></span>:00</span>
+                    <span class="destino" v-html="booking.destino"></span>
 
-                    <span v-html="booking.paxes"></span>
+                    <span class="details">
+                        a las <span><span v-html="booking.hour"></span>:00</span>
+
+                        (<span><span v-html="(4 - booking.paxes)"></span> plazas libres</span>)
+                    </span>
+
+                    <label>Plazas solicitadas</label>
+
+                    <select name="selectedPaxes">
+                        <option v-for="i in (4-booking.paxes)">{{ i }}</option>
+                    </select>
+
+                    <button @click="sharingProposal(booking.id, $event)">Proponer</button>
                 </li>
             </ul>
         </div>
+
+        <modal v-if="showModal" @close="showModal = false">
+            <h3 slot="header">Propuesta para compartir coche</h3>
+            <div slot="body">Se ha enviado una propuesta al usuario que confirmó la reserva <strong><span v-html="selectedBooking"></span></strong> para ocupar <strong><span v-html="selectedPaxes"></span></strong> de sus plazas libres.</div>
+        </modal>
     </div>
 </template>
 
@@ -71,9 +89,34 @@
     }
 
     .bookingList {
-        clear: both;
+        .details {
+            font-size: 17px;
+        }
+
+        .origen,
+        .destino {
+            font-size: 22px;
+        }
+
+        ul {
+            padding: 0;
+            margin: 0;
+
+            li {
+                clear: both;
+
+                list-style: none;
+                margin-bottom: 1.5em;
+
+                button {
+                    font-size: 15px;
+                    padding: 10px;
+                }
+            }
+        }
     }
 
+    .bookingList,
     form {
 
         clear: both;
@@ -101,6 +144,9 @@
     .arrowIcon {
         width: 20px;
         height: 20px;
+        top: 3px;
+        position: relative;
+        margin: 0 5px;
     }
 </style>
 
@@ -111,10 +157,11 @@
     export default{
         data(){
             return{
-                bookingList: []
+                bookingList: [],
+                showModal: false,
+                selectedBooking: '',
+                selectedPaxes: 0
             }
-        },
-        components:{
         },
         mounted() {
             const endPoint = 'http://127.0.0.1:8080/cabify/bookingList'
@@ -132,6 +179,31 @@
             })
         },
         methods: {
+            sharingProposal(bookingId, event) {
+                const els = event.target.parentNode.childNodes;
+
+                els.forEach( (el) => {
+                    console.log(el)
+                    if (el.name == 'selectedPaxes') {
+                        this.$data.selectedPaxes = el.value
+                    }
+                })
+
+                this.$data.selectedBooking = bookingId
+
+                this.$data.showModal = true
+
+                const endPoint = 'http://127.0.0.1:8080/cabify/update'
+
+                const queryString = qs.stringify({
+                    'id': this.$data.selectedBooking,
+                    'paxes': this.$data.selectedPaxes
+                })
+
+                axios.get(endPoint + '?' + queryString).then((response) => {
+                    console.log(response)
+                })
+            },
             confirmBooking() {
                 const endPoint = "http://127.0.0.1:8080/cabify/booking"
 

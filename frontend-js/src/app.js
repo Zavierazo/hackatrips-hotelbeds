@@ -3,7 +3,6 @@ import VueCookie from 'vue-cookie'
 import Cookie from 'tiny-cookie'
 
 // Application structure
-import auth from './auth'
 import store from './store'
 import router from './router'
 
@@ -14,6 +13,7 @@ import InputPassword from "./components/InputPassword.vue"
 import Mic from "./components/Mic.vue"
 import Mapi from "./components/Mapi.vue"
 import Car from "./components/Car.vue"
+import Modal from "./components/Modal.vue"
 
 // Register Vue.js plugins
 Vue.use(VueCookie)
@@ -24,6 +24,7 @@ Vue.component('input-password', InputPassword)
 Vue.component('mic', Mic)
 Vue.component('mapi', Mapi)
 Vue.component('car-booking', Car)
+Vue.component('modal', Modal)
 
 Vue.config.debug    = true
 Vue.config.devtools = true
