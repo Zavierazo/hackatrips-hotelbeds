@@ -1,6 +1,8 @@
 package com.hacktrips.model.carto;
 
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -128,7 +130,7 @@ public class CartoPostgreSQL {
 				} else if (type.isAssignableFrom(Double.class)) {
 					str.append("decimal");
 				}
-				if (key.equalsIgnoreCase("id")){
+				if (key.equalsIgnoreCase("id")) {
 					str.append(StringUtils.SPACE);
 					str.append("PRIMARY KEY");
 				}
@@ -150,7 +152,7 @@ public class CartoPostgreSQL {
 		str.append(tableName);
 		str.append("(");
 		str.append("contaminationId integer,");
-		str.append("hour integer,");
+		str.append("hour timestamp,");
 		str.append("level decimal,");
 		str.append("latitude decimal,");
 		str.append("longitude decimal,");
@@ -275,7 +277,7 @@ public class CartoPostgreSQL {
 							str.append("(");
 							str.append(id);
 							str.append(",");
-							str.append(hour);
+							str.append(Timestamp.valueOf(LocalDateTime.now().withHour(hour - 1).withMinute(0)).getTime());
 							str.append(",");
 							str.append(contamination.getContaminationByHour().get(hour));
 							str.append(",");

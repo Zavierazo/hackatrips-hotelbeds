@@ -37,8 +37,8 @@ public class CartoService {
 
 	private static final String URL = "https://hackatrips11.carto.com/api/v2/sql";
 	private static final String API_KEY = "dc2d2b3c91dd85589dbb54d85b51ea9f5f35ffdd";
-	private static final String DATA_SET_01 = "data_group06_mass";
-	private static final String DATA_SET_02 = "data_group06_mass_detail";
+	private static final String DATA_SET_01 = "data_group06_mass_3";
+	private static final String DATA_SET_02 = "data_group06_mass_detail_3";
 
 	@Autowired
 	private RestTemplate restTemplate;
