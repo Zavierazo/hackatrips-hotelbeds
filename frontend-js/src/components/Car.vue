@@ -39,9 +39,10 @@
     }
 
     input {
-        margin-bottom: 15px;
-        width: 45%;
-        margin-right: 9.6%;
+        margin-bottom : 40px;width: 45%;
+        margin-right: 10%;
+        float : left;
+
         box-sizing: border-box;
         &:last-of-type {
             margin-right: 0;
