@@ -128,6 +128,10 @@ public class CartoPostgreSQL {
 				} else if (type.isAssignableFrom(Double.class)) {
 					str.append("decimal");
 				}
+				if (key.equalsIgnoreCase("id")){
+					str.append(StringUtils.SPACE);
+					str.append("PRIMARY KEY");
+				}
 			} else {
 				skipColumn = true;
 			}
@@ -145,8 +149,8 @@ public class CartoPostgreSQL {
 		str.append(StringUtils.SPACE);
 		str.append(tableName);
 		str.append("(");
-		str.append("contaminationId number,");
-		str.append("hour number,");
+		str.append("contaminationId integer PRIMARY KEY,");
+		str.append("hour integer,");
 		str.append("level decimal");
 		str.append(");");
 		return str.toString();
