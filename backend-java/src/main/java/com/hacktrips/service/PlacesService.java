@@ -87,6 +87,11 @@ public class PlacesService {
 
         return resultList;
     }
+    
+    public static ArrayList<Place> find( double latitud, double longitud) {
+    	return search(API_KEY, latitud, longitud, 500);
+    	
+    }
 
     public static ArrayList<Place> search(String apiKey, double latitud, double longitud, int radio) {
         ArrayList<Place> resultList = null;
@@ -135,7 +140,7 @@ public class PlacesService {
                 Place place = new Place();
                 place.placeId = predsJsonArray.getJSONObject(i).getString("place_id");
                 place.name = predsJsonArray.getJSONObject(i).getString("name");
-                resultList.add(details1(place.placeId,apiKey));
+                resultList.add(details(place.placeId,apiKey));
                 
             }
         } catch (JSONException e) {
@@ -144,7 +149,7 @@ public class PlacesService {
         return resultList;
     }
    
-    public static Place details1(String placeId, String apiKey) {
+    public static Place details(String placeId, String apiKey) {
         HttpURLConnection conn = null;
         StringBuilder jsonResults = new StringBuilder();
         try {

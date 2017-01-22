@@ -36,6 +36,16 @@ public class PlacesController {
         return places;
     } 
     
+    @RequestMapping(method = RequestMethod.GET, value = "/find", produces = {
+            MediaType.APPLICATION_JSON_VALUE
+    })
+    @ResponseBody
+    public List<Place> find(@RequestParam double latitud, @RequestParam double longitud) {
+    	List<Place> places = new ArrayList<>();
+    	places= placesService.find(latitud, longitud);
+        return places;
+    }
+    
     @RequestMapping(method = RequestMethod.GET, value = "/tst", produces = {
             MediaType.APPLICATION_JSON_VALUE
     })
