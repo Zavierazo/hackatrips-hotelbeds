@@ -77,7 +77,7 @@
             }
         },
         created() {
-            const currentHour = moment().hours() + 1
+            const currentHour = moment().hours() + 2
             this.sliderOpts.value = currentHour
         },
         beforeRouteEnter (to, from, next) {
@@ -98,7 +98,7 @@
         },
         methods: {
             sliderCallback(value) {
-                const currentHour = moment().hours() + 1
+                const currentHour = moment().hours() + 2
 
                 if (value <= currentHour) {
                     this.sliderOpts.value = currentHour

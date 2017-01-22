@@ -29,7 +29,7 @@
                             </select>
                         </div>
 
-                        <button class="proposalButton" @click="sharingProposal($event)">Proponer</button>
+                        <button class="proposalButton" @click="sharingProposal($event)">Solicitar</button>
                     </div>
                 </li>
             </ul>
