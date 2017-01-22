@@ -16,6 +16,15 @@
     .timeSelect {
         width: 80%;
         margin: 3em auto 1.5em;
+
+        &:after {
+            visibility: hidden;
+            display: block;
+            font-size: 0;
+            content: " ";
+            clear: both;
+            height: 0;
+        }
     }
     .sliderCaption {
         float: left;
@@ -70,7 +79,7 @@
             }
         },
         created() {
-            const currentHour = moment().hours()
+            const currentHour = moment().hours() + 1
             this.sliderOpts.value = currentHour
         },
         beforeRouteEnter (to, from, next) {
@@ -88,6 +97,15 @@
         },
         components: {
             vueSlider
+        },
+        methods: {
+            sliderCallback(value) {
+                const currentHour = moment().hours() + 1
+
+                if (value <= currentHour) {
+                    this.sliderOpts.value = currentHour
+                }
+            }
         }
     }
 </script>

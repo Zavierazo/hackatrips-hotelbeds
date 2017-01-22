@@ -1,34 +1,71 @@
 <template>
-    <form>
-        <h3>Reserva un coche para compartir</h3>
+    <div class="carWrapper">
+        <form @submit.prevent="confirmBooking">
+            <h3>Reserva transporte para compartir</h3>
 
-        <label>Origen</label>
-        <input >
+            <label for="carFrom">Origen</label>
+            <input ref="carFrom" id="carFrom" data-latitude="40.4655112" data-longitude="-3.6165726" value="IFEMA" disabled="disabled">
 
-        <label>Destino</label>
-        <input >
+            <label for="carTo">Destino</label>
+            <input ref="carTo" id="carTo" data-latitude="40.4655112" data-longitude="-3.6165726" value="Demo" placeholder="Selecciona un destino" disabled="disabled">
 
-        <label>Plazas</label>
-        <select>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-        </select>
+            <label for="paxes">Plazas</label>
+            <select ref="carPaxes" id="paxes">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+            </select>
 
-        <button>Reservar</button>
-    </form>
+            <button>Reservar</button>
+        </form>
+
+        <div v-if="bookingList.length > 0">
+            <h3>Comparte con alguien</h3>
+
+            <ul ref="bookingList">
+                <li v-for="booking in bookingList">
+                    {{ booking }}
+                </li>
+            </ul>
+        </div>
+    </div>
 </template>
 
 <style scoped lang="scss">
-    form {
-        clear: both;
+    .carWrapper {
         width: 80%;
         margin: 2.5em auto 1.5em;
+    }
 
-        h3 {
+    h3 {
+        font-weight: 200;
+        font-size: 1.8em;
+    }
+
+    form {
+        label {
+            font-size: 1.3em;
+            margin-right: 0.3em;
             font-weight: 200;
-            font-size: 1.8em;
+        }
+
+        button {
+            padding: 0.5em;
+            font-size: 1.1em;
+            float: right;
+            background-color: #f00;
+            text-transform: uppercase;
+            border: 0;
+            color: #fff;
+        }
+
+        input,
+        select {
+            padding: 0.3em;
+            font-size: 1.2em;
+            font-weight: 200;
+            margin-right: 0.5em;
         }
     }
 
@@ -36,12 +73,47 @@
 </style>
 
 <script>
+    import qs from "qs"
+    import axios from "axios"
+
     export default{
         data(){
             return{
+                bookingList: []
             }
         },
         components:{
+        },
+        mounted() {
+            const endPoint = 'http://127.0.0.1:8080/cabify/bookingList'
+
+            axios.get(endPoint).then((response) => {
+                this.$data.bookingList = response.data
+            })
+        },
+        methods: {
+            confirmBooking() {
+                const endPoint = "http://127.0.0.1:8080/cabify/booking"
+
+                const carFrom = this.$refs['carFrom']
+                const carTo = this.$refs['carTo']
+                const carPaxes = this.$refs['carPaxes']
+
+                const queryString = qs.stringify({
+                    'latitudeOrigen': carFrom.getAttribute('data-latitude'),
+                    'longitudeOrigen': carFrom.getAttribute('data-longitude'),
+                    'latitudeDestino': carTo.getAttribute('data-latitude'),
+                    'longitudeDestino': carTo.getAttribute('data-longitude'),
+                    'nameOrigen': carFrom.value,
+                    'nameDestino': carTo.value,
+                    'paxes': carPaxes.value,
+                    'hour': this.$parent.$refs['slider'].currentValue
+                })
+
+                axios.get(endPoint + '?' + queryString).then((response) => {
+                    console.log(response)
+                })
+            }
         }
     }
 </script>
