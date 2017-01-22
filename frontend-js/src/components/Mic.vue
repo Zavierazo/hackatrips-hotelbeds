@@ -191,7 +191,7 @@
                     if (input.value.length > 0) {
                         for (let i = 0; i < results.length && i < maxResults; i++) {
                                 const listItem = window.document.createElement('li')
-                                listItem.innerHTML = results[i].name
+                                listItem.innerHTML = results[i].city_name
                                 listItem.classList.add('listitem')
                                 listItem.addEventListener('click', this.performSearch, false)
                                 resultContainer.appendChild(listItem)
