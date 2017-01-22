@@ -1,13 +1,14 @@
 <template>
     <div class="carWrapper">
         <form @submit.prevent="confirmBooking">
-            <h3>Reserva transporte para compartir</h3>
+            <h3 class="heading-3">Reserva transporte para compartir</h3>
 
-            <label for="carFrom">Origen</label>
-            <input ref="carFrom" id="carFrom" data-latitude="40.4655112" data-longitude="-3.6165726" value="IFEMA" disabled="disabled">
+            <label for="carFrom">Elige tu trayecto</label>
 
-            <label for="carTo">Destino</label>
-            <input ref="carTo" id="carTo" data-latitude="40.4655112" data-longitude="-3.6165726" value="Demo" placeholder="Selecciona un destino" disabled="disabled">
+            <input ref="carFrom" id="carFrom" data-latitude="40.4655112" data-longitude="-3.6165726" value="IFEMA"
+                   placeholder="Selecciona un origen" disabled="disabled">
+            <input ref="carTo" id="carTo" data-latitude="40.4655112" data-longitude="-3.6165726" value="Demo"
+                   placeholder="Selecciona un destino" disabled="disabled">
 
             <label for="paxes">Plazas</label>
             <select ref="carPaxes" id="paxes">
@@ -20,7 +21,7 @@
             <button>Reservar</button>
         </form>
 
-        <div v-if="bookingList.length > 0">
+        <div class="bookingList" v-if="bookingList.length > 0">
             <h3>Comparte con alguien</h3>
 
             <ul ref="bookingList">
@@ -33,43 +34,58 @@
 </template>
 
 <style scoped lang="scss">
-    .carWrapper {
-        width: 80%;
-        margin: 2.5em auto 1.5em;
+    label {
+        padding: 15px 0;
     }
 
-    h3 {
-        font-weight: 200;
-        font-size: 1.8em;
+    input {
+        margin-bottom: 15px;
+        width: 45%;
+        margin-right: 9.6%;
+        box-sizing: border-box;
+        &:last-of-type {
+            margin-right: 0;
+        }
+
+    }
+
+    select {
+        padding: 15px;
+        font-size: 16px;
+        width: 100%;
+
+        border: 0;
+        background: transparent;
+        border: 2px solid #F44336;
+    }
+
+    .bookingList {
+        clear: both;
     }
 
     form {
-        label {
-            font-size: 1.3em;
-            margin-right: 0.3em;
+
+        clear: both;
+        width: 80%;
+        margin: 2.5em auto 1.5em;
+
+        h3 {
             font-weight: 200;
+            font-size: 1.8em;
         }
 
-        button {
-            padding: 0.5em;
-            font-size: 1.1em;
-            float: right;
-            background-color: #f00;
-            text-transform: uppercase;
-            border: 0;
-            color: #fff;
-        }
-
-        input,
-        select {
-            padding: 0.3em;
-            font-size: 1.2em;
-            font-weight: 200;
-            margin-right: 0.5em;
-        }
     }
 
-
+    button {
+        background: #F44336;
+        padding: 15px;
+        border: 0;
+        color: #fff;
+        display: block;
+        margin: 30px 0 30px 0;
+        float: right;
+        font-size: 18px;
+    }
 </style>
 
 <script>
@@ -116,4 +132,5 @@
             }
         }
     }
+
 </script>

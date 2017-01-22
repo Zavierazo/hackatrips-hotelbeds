@@ -26,6 +26,31 @@
         box-sizing: inherit;
     }
 
+    label{
+        display : block;
+        font-size : 18px;
+        margin-top :10px;
+    }
+
+    .heading-3{
+        font-weight: 200;
+        font-size: 1.8em;
+        display: block;
+        padding: 20px 0 0 0;
+    }
+    input{
+        padding: 15px;
+        font-size: 16px;
+        width : 100%;
+
+        border: 0;
+        background: transparent;
+        border-bottom: 2px solid #F44336;
+        &:focus{
+             outline :0;
+         }
+    }
+
     body {
         font-family             : 'Source Sans Pro', Helvetica, Arial, sans-serif;
         font-weight             : 400;

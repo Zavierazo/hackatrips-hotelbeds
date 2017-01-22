@@ -38,9 +38,7 @@
             padding: 50px;
             border-radius: 100%;
             box-shadow: 0px 0px 0px 0px #F44336;
-            transition: 1s;
             &:hover {
-                box-shadow: 0px 0px 0px 10px #F44336;
                 /*background: transparent;*/
             }
         }
@@ -113,6 +111,34 @@
             const recordBox = document.querySelector("[data-function='record--box']");
             const input = document.querySelector("[data-function='input-search']");
             var open = false;
+
+            recordBox.addEventListener('mousedown', function () {
+                anime({
+                    targets: this,
+                    background: ["#F44336", "#333"],
+                    boxShadow: ["0 0 0 0", "0 0 0 10px"],
+
+                    duraition: durationEffect,
+                    easing: "easeInOutQuad",
+                })
+
+                anime({
+                    targets: this,
+                    background: ["#F44336", "#333"],
+
+                    loop: true,
+                    duraition: durationEffect,
+                    easing: "easeInOutQuad",
+                    direction: "alternate"
+                })
+            })
+
+            //
+            recordBox.addEventListener('click', function () {
+               anime.remove(this)
+                this.removeAttribute("style")
+            })
+
 
 
             input.addEventListener('focus',function(e){
