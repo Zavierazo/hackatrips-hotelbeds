@@ -4,34 +4,36 @@
             <h3>Comparte coche. Trayectos disponibles:</h3>
 
             <ul ref="bookingList">
-                <li v-for="booking in bookingList" :data-id="booking.id" :data-paxes="booking.paxes">
-                    <span class="origen" v-html="booking.origen"></span>
+                <transition name="fade">
+                    <li v-for="booking in bookingList" :data-id="booking.id" :data-paxes="booking.paxes">
+                        <span class="origen" v-html="booking.origen"></span>
 
-                    <svg class="arrowIcon" width="1792" height="1792" viewBox="0 0 1792 1792"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1728 893q0 14-10 24l-384 354q-16 14-35 6-19-9-19-29v-224h-1248q-14 0-23-9t-9-23v-192q0-14 9-23t23-9h1248v-224q0-21 19-29t35 5l384 350q10 10 10 23z"/>
-                    </svg>
+                        <svg class="arrowIcon" width="1792" height="1792" viewBox="0 0 1792 1792"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1728 893q0 14-10 24l-384 354q-16 14-35 6-19-9-19-29v-224h-1248q-14 0-23-9t-9-23v-192q0-14 9-23t23-9h1248v-224q0-21 19-29t35 5l384 350q10 10 10 23z"/>
+                        </svg>
 
-                    <span class="destino" v-html="booking.destino"></span>
+                        <span class="destino" v-html="booking.destino"></span>
 
-                    <span class="details">
-                        a las <span><span v-html="booking.hour"></span>:00</span>
+                        <span class="details">
+                            a las <span><span v-html="booking.hour"></span>:00</span>
 
-                        (<span><span v-html="(4-booking.paxes)"></span> plazas libres</span>)
-                    </span>
+                            (<span><span v-html="(4-booking.paxes)"></span> plazas libres</span>)
+                        </span>
 
-                    <div class="row">
-                        <div class="requestedPaxes">
-                            <label>Plazas solicitadas</label>
+                        <div class="row">
+                            <div class="requestedPaxes">
+                                <label>Plazas solicitadas</label>
 
-                            <select name="selectedPaxes">
-                                <option v-for="i in (4-booking.paxes)">{{ i }}</option>
-                            </select>
+                                <select name="selectedPaxes">
+                                    <option v-for="i in (4-booking.paxes)">{{ i }}</option>
+                                </select>
+                            </div>
+
+                            <button class="proposalButton" @click="sharingProposal($event)">Proponer</button>
                         </div>
-
-                        <button class="proposalButton" @click="sharingProposal($event)">Proponer</button>
-                    </div>
-                </li>
+                    </li>
+                </transition>
             </ul>
         </div>
 
