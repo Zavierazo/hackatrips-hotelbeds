@@ -7,6 +7,8 @@
                 <vue-slider class="slider" v-bind="sliderOpts" ref="slider" v-model="sliderOpts.value"></vue-slider>
             </div>
         </div>
+
+        <car-booking></car-booking>
     </div>
 </template>
 
@@ -32,7 +34,8 @@
 
 <script>
     import store from "../store"
-    import vueSlider from '../../node_modules/vue-slider-component/src/vue2-slider.vue';
+    import vueSlider from '../../node_modules/vue-slider-component/src/vue2-slider.vue'
+    import moment from "moment"
 
     export default {
         data() {
@@ -67,7 +70,8 @@
             }
         },
         created() {
-            this.sliderOpts.value = 3
+            const currentHour = moment().hours()
+            this.sliderOpts.value = currentHour
         },
         beforeRouteEnter (to, from, next) {
             if (typeof to.params.text !== 'undefined') {
