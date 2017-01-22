@@ -147,10 +147,9 @@ public class MinubeController {
         for (Integer category : MiNubeService.USED_CATEGORYS) {
             loop: for (int page = 0; page < 999; page++) {
                 try {
-                    POIData[] rs = minubeService.getPage(padre.getLatitude(), padre.getLongitude(), page, category, 10000);
+                    POIData[] rs = minubeService.getPage("63", padre.getCity_id(), page, category);
                     for (POIData poi : rs) {
                         pois.add(poi);
-                        cacheMap.put(poi.getName().toLowerCase(), poi);
                     }
                 } catch (Exception e) {
                     log.debug("Exception on page {}", page, e);
