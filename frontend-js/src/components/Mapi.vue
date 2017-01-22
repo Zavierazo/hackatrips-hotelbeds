@@ -87,6 +87,7 @@
                 sublayers:[{
                     sql: clusterSQL,
                     cartocss:"#layer{  marker-width: 12;  marker-fill: #FD8D3C;  marker-line-width: 1.5;  marker-fill-opacity: 1;  marker-line-opacity: 1;  marker-line-color: #fff; marker-allow-overlap: true;} #layer::labels { text-size: 6; text-fill: #fff; text-opacity: 0.8;text-name: [points_count]; text-face-name: 'DejaVu Sans Book'; text-halo-fill: #FFF; text-halo-radius: 0;text-allow-overlap: true;[zoom>11]{ text-size: 16; }[points_count = 1]{ text-size: 0; }}",
+                    interactivity: 'cartodb_id, name, pop_max'
                 }],
                 extra_params: {
                     map_key: "dc2d2b3c91dd85589dbb54d85b51ea9f5f35ffdd"

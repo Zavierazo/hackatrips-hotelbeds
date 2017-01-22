@@ -1,10 +1,12 @@
 <template>
     <div>
         <mapi></mapi>
-        <div class="timeSelect">
-            <span class="sliderCaption">Hora</span>
-            <div class="sliderWrapper">
-                <vue-slider class="slider" v-bind="sliderOpts" ref="slider" v-model="sliderOpts.value"></vue-slider>
+        <div class="map-footer">
+            <div class="timeSelect">
+                <span class="sliderCaption">Hora</span>
+                <div class="sliderWrapper">
+                    <vue-slider class="slider" v-bind="sliderOpts" ref="slider" v-model="sliderOpts.value"></vue-slider>
+                </div>
             </div>
         </div>
 
@@ -13,11 +15,16 @@
 </template>
 
 <style lang="scss" scoped>
+    .map-footer{
+        background: #F44336;
+        height: 90px;    }
     .timeSelect {
         width: 80%;
-        margin: 3em auto 1.5em;
+        margin: 0 auto;
+        padding :30px;
     }
     .sliderCaption {
+        color : #fff;
         float: left;
         width: 10%;
         display: inline-block;
