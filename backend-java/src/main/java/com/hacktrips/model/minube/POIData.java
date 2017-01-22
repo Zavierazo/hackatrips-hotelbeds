@@ -1,12 +1,10 @@
 package com.hacktrips.model.minube;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.hacktrips.config.contamination.ContaminationData;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,4 +24,5 @@ public class POIData {
     private Double distance;
     private Double prob;
     private ContaminationData contaminationByHour;
+    private HashMap<String, String> openByHour;
 }
