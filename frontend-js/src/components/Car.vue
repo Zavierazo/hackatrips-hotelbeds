@@ -4,39 +4,41 @@
             <h3>Comparte coche. Trayectos disponibles:</h3>
 
             <ul ref="bookingList">
-                <li v-for="booking in bookingList" :data-id="booking.id" :data-paxes="4 - booking.paxes">
-                    <span class="origen" v-html="booking.origen"></span>
+                <transition name="fade">
+                    <li v-for="booking in bookingList" :data-id="booking.id" :data-paxes="booking.paxes">
+                        <span class="origen" v-html="booking.origen"></span>
 
-                    <svg class="arrowIcon" width="1792" height="1792" viewBox="0 0 1792 1792"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1728 893q0 14-10 24l-384 354q-16 14-35 6-19-9-19-29v-224h-1248q-14 0-23-9t-9-23v-192q0-14 9-23t23-9h1248v-224q0-21 19-29t35 5l384 350q10 10 10 23z"/>
-                    </svg>
+                        <svg class="arrowIcon" width="1792" height="1792" viewBox="0 0 1792 1792"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1728 893q0 14-10 24l-384 354q-16 14-35 6-19-9-19-29v-224h-1248q-14 0-23-9t-9-23v-192q0-14 9-23t23-9h1248v-224q0-21 19-29t35 5l384 350q10 10 10 23z"/>
+                        </svg>
 
-                    <span class="destino" v-html="booking.destino"></span>
+                        <span class="destino" v-html="booking.destino"></span>
 
-                    <span class="details">
-                        a las <span><span v-html="booking.hour"></span>:00</span>
+                        <span class="details">
+                            a las <span><span v-html="booking.hour"></span>:00</span>
 
-                        (<span><span v-html="(4 - booking.paxes)"></span> plazas libres</span>)
-                    </span>
+                            (<span><span v-html="(4-booking.paxes)"></span> plazas libres</span>)
+                        </span>
 
-                    <div class="row">
-                        <div class="requestedPaxes">
-                            <label>Plazas solicitadas</label>
+                        <div class="row">
+                            <div class="requestedPaxes">
+                                <label>Plazas solicitadas</label>
 
-                            <select name="selectedPaxes">
-                                <option v-for="i in (4-booking.paxes)">{{ i }}</option>
-                            </select>
+                                <select name="selectedPaxes">
+                                    <option v-for="i in (4-booking.paxes)">{{ i }}</option>
+                                </select>
+                            </div>
+
+                            <button class="proposalButton" @click="sharingProposal($event)">Proponer</button>
                         </div>
-
-                        <button class="proposalButton" @click="sharingProposal($event)">Proponer</button>
-                    </div>
-                </li>
+                    </li>
+                </transition>
             </ul>
         </div>
 
         <form @submit.prevent="confirmBooking">
-            <h3 class="heading-3">Reserva coche para compartir</h3>
+            <h3 class="heading-3">Reserva coche para compartir:</h3>
 
             <label for="carFrom">Elige tu trayecto</label>
 
@@ -56,6 +58,11 @@
 
             <button>Reservar</button>
         </form>
+
+        <modal v-if="showConfirmModal" @close="showConfirmModal = false">
+            <h3 slot="header">Reserva confirmada</h3>
+            <div slot="body">Se ha confirmado tu reserva en Cabify.</div>
+        </modal>
 
         <modal v-if="showModal" @close="showModal = false">
             <h3 slot="header">Propuesta para compartir coche</h3>
@@ -197,24 +204,17 @@
             return{
                 bookingList: [],
                 showModal: false,
+                showConfirmModal: false,
                 selectedBooking: '',
                 selectedPaxes: 0,
-                availablePaxes: 4
+                paxes: 4
             }
         },
         mounted() {
             const endPoint = 'http://127.0.0.1:8080/cabify/bookingList'
 
             axios.get(endPoint).then((response) => {
-                var bookings = []
-
-                response.data.forEach( (item) => {
-                    if ((4-item.paxes) > 0) {
-                        bookings.push(item)
-                    }
-                })
-
-                this.$data.bookingList = bookings
+                this.setBookingList(response.data)
             })
         },
         methods: {
@@ -222,8 +222,6 @@
                 const self = this
                 const parent = event.target.parentNode
                 const els = parent.childNodes
-
-                console.log(els)
 
                 els.forEach( (el) => {
                     el.childNodes.forEach( (el) => {
@@ -234,7 +232,7 @@
                 })
 
                 self.$data.selectedBooking = parent.parentNode.getAttribute('data-id')
-                self.$data.availablePaxes = parent.parentNode.getAttribute('data-paxes')
+                self.$data.paxes = parent.parentNode.getAttribute('data-paxes')
 
                 self.$data.showModal = true
 
@@ -246,7 +244,7 @@
                 })
 
                 axios.get(endPoint + '?' + queryString).then((response) => {
-                    console.log(response)
+                    self.setBookingList(response.data)
                 })
             },
             confirmBooking() {
@@ -269,8 +267,22 @@
                 })
 
                 axios.get(endPoint + '?' + queryString).then((response) => {
-                    self.$data.bookingList = response.data
+                    this.setBookingList(response.data)
+                    self.$data.showConfirmModal = true
                 })
+            },
+            setBookingList(bookingList) {
+                var bookings = []
+
+                bookingList.forEach( (item) => {
+                    if ((4-item.paxes) > 0) {
+                        bookings.push(item)
+                    }
+                })
+
+                console.log('bookings after filter', bookings)
+
+                this.$data.bookingList = bookings
             }
         }
     }

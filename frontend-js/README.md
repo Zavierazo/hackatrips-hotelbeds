@@ -1,14 +1,19 @@
 # webpack+ES6+Vue boilerplate
 
-## Getting started
+## Dependencies
 
 * Required:
     * [Node.js](http://nodejs.org): `brew install node` on OS X
     * [webpack](https://webpack.github.io): `npm install -g webpack`
     * [nodemon](https://github.com/remy/nodemon): `npm install -g nodemon`
     * App dependencies: `npm install`
-* Configure:
-    * Copy `.env.js.sample` as `.development.js` and modify its content
+
+## Deploying
+
 * Run:
+    * `npm run build`
 	* `npm run dev`
+
+* Or:
     * `npm run watch`
+    * `npm run dev`
