@@ -43,7 +43,7 @@ public class CartoPostgreSQL {
 	public String generateDataSet() {
 		if (TypeSQL.CREATE.equals(typeSQL)) {
 			prepareColumnsForCreate();
-			return createCmd();
+			return !subset ? createCmd() : createSubsetCmd();
 		} else if (TypeSQL.INSERT.equals(typeSQL)) {
 			prepareColumnsForInsert();
 			return insertCmd();
@@ -118,10 +118,7 @@ public class CartoPostgreSQL {
 		for (String key : columns.keySet()) {
 			boolean skipColumn = false;
 			Class<?> type = columns.get(key);
-			if (type.isAssignableFrom(Map.class)) {
-				queueToTables.add(key);
-				skipColumn = true;
-			} else {
+			if (!key.equalsIgnoreCase("contaminationByHour")) {
 				str.append(key);
 				str.append(StringUtils.SPACE);
 				if (type.isAssignableFrom(Integer.class)) {
@@ -131,6 +128,8 @@ public class CartoPostgreSQL {
 				} else if (type.isAssignableFrom(Double.class)) {
 					str.append("decimal");
 				}
+			} else {
+				skipColumn = true;
 			}
 			if (++count < columns.size() && !skipColumn) {
 				str.append(",");
@@ -140,59 +139,144 @@ public class CartoPostgreSQL {
 		return str.toString();
 	}
 
+	private String createSubsetCmd() {
+		StringBuilder str = new StringBuilder();
+		str.append(CREATE_TABLE);
+		str.append(StringUtils.SPACE);
+		str.append(tableName);
+		str.append("(");
+		str.append("contaminationId number,");
+		str.append("hour number,");
+		str.append("level decimal");
+		str.append(");");
+		return str.toString();
+	}
+
 	private String insertCmd() {
 		StringBuffer str = new StringBuffer();
 
+		if (subset) {
+			return generateSubset();
+		} else {
+			for (Map<String, Object> mapValue : valuesOfColumns) {
+
+				SortedSet<String> keys = new TreeSet<String>(mapValue.keySet());
+
+				str.append(StringUtils.SPACE);
+				str.append(INSERT_INTO);
+				str.append(StringUtils.SPACE);
+				str.append(tableName);
+				str.append("(");
+				int count = 0;
+				for (String columnId : keys) {
+
+					// Add all columns of entity
+					if (!subset && !columnId.equalsIgnoreCase("contaminationByHour")) {
+						str.append(columnId);
+						str.append(StringUtils.SPACE);
+						if (++count < mapValue.size()) {
+							str.append(",");
+						}
+					} else {
+						count++;
+					}
+				}
+				str.append(")");
+				str.append(StringUtils.SPACE);
+				str.append(VALUES);
+				str.append(StringUtils.SPACE);
+				str.append("(");
+				int count2 = 0;
+				for (String columnId : keys) {
+					// for (String key : columns.keySet()) {
+					// if (key.equalsIgnoreCase(keyValues)) {
+					Object columnValue = mapValue.get(columnId);
+					if (!subset && !columnId.equalsIgnoreCase("contaminationByHour")) {
+						str.append(extractColumnValue(columnValue));
+						if (++count2 < mapValue.size()) {
+							str.append(",");
+						}
+					} else {
+						count2++;
+					}
+					// }
+					// }
+				}
+				str.append(StringUtils.SPACE);
+				str.append(");");
+			}
+		}
+
+		return str.toString();
+	}
+
+	private String extractColumnValue(Object columnValue) {
+		StringBuilder str = new StringBuilder();
+		if (columnValue != null && columnValue instanceof String) {
+			str.append("'");
+			str.append(columnValue);
+			str.append("'");
+		} else {
+			if (columnValue != null)
+				str.append(columnValue);
+			else
+				str.append(0);
+		}
+		return str.toString();
+	}
+
+	private String generateSubset() {
+		StringBuffer str = new StringBuffer();
+		Integer id = 0;
 		for (Map<String, Object> mapValue : valuesOfColumns) {
 
 			SortedSet<String> keys = new TreeSet<String>(mapValue.keySet());
 
-			str.append(StringUtils.SPACE);
-			str.append(INSERT_INTO);
-			str.append(StringUtils.SPACE);
-			str.append(tableName);
-			str.append("(");
-			int count = 0;
-			for (String keyValues : keys) {
+			for (String columnId : keys) {
 				// for (String key : columns.keySet()) {
 				// if (key.equalsIgnoreCase(keyValues)) {
-				str.append(keyValues);
-				str.append(StringUtils.SPACE);
-				if (++count < mapValue.size()) {
-					str.append(",");
+				Object columnValue = mapValue.get(columnId);
+				if (columnValue instanceof Integer && columnId.equalsIgnoreCase("id")) {
+					id = (Integer) columnValue;
 				}
-				// }
-				// }
 			}
-			str.append(")");
-			str.append(StringUtils.SPACE);
-			str.append(VALUES);
-			str.append(StringUtils.SPACE);
-			str.append("(");
-			int count2 = 0;
-			for (String keyValues : keys) {
-				// for (String key : columns.keySet()) {
-				// if (key.equalsIgnoreCase(keyValues)) {
-				Object value = mapValue.get(keyValues);
-				if (value != null && value instanceof String) {
-					str.append("'");
-					str.append(value);
-					str.append("'");
-				} else {
-					if (value != null)
-						str.append(value);
-					else
-						str.append(0);
-				}
 
-				if (++count2 < mapValue.size()) {
-					str.append(",");
+			for (String columnId : keys) {
+				Object columnValue = mapValue.get(columnId);
+				// FIXME!!!! ¬¬ hackaton tips...
+				if (columnId.equalsIgnoreCase("contaminationByHour")) {
+					// Add child columns of subset
+					Object colValue = extractColumnValue(columnValue);
+					if (colValue instanceof ContaminationData) {
+						ContaminationData contamination = (ContaminationData) colValue;
+						for (Integer hour : contamination.getContaminationByHour().keySet()) {
+							str.append(StringUtils.SPACE);
+							str.append(INSERT_INTO);
+							str.append(StringUtils.SPACE);
+							str.append(tableName);
+							str.append("(");
+							// FIXME!!!! ¬¬ hackaton tips..
+							// Add child columns of subset
+							str.append("contaminationId,");
+							str.append("hour,");
+							str.append("level");
+							str.append(")");
+							str.append(StringUtils.SPACE);
+							str.append(VALUES);
+							str.append(StringUtils.SPACE);
+							str.append("(");
+							str.append(id);
+							str.append(",");
+							str.append(hour);
+							str.append(",");
+							str.append(contamination.getContaminationByHour().get(hour));
+							str.append(StringUtils.SPACE);
+							str.append(");");
+						}
+					}
+
 				}
-				// }
-				// }
 			}
-			str.append(StringUtils.SPACE);
-			str.append(");");
 		}
 		return str.toString();
 	}

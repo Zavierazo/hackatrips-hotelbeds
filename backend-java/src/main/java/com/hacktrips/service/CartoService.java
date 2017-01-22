@@ -51,6 +51,7 @@ public class CartoService {
 		uploadData(cartoSQL.generateDataSet());
 
 		// Create Contamination data set
+		cartoSQL.setTableName(DATA_SET_02);
 		cartoSQL.setSubset(true);
 		cartoSQL.setTypeSQL(TypeSQL.CREATE);
 		if (!existsDataset(DATA_SET_02)) {
