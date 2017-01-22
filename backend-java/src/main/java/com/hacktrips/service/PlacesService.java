@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.sql.DataSource;
 
@@ -31,22 +32,13 @@ public class PlacesService {
     private CacheManager cacheManager;
 	
     private static final String LOG_TAG = "HackatonApp";
-
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
-
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
     private static final String TYPE_DETAILS = "/details";
-    private static final String TYPE_SEARCH = "/search";
-
+    private static final String TYPE_SEARCH = "/nearbysearch";
     private static final String OUT_JSON = "/json";
+    private static final String API_KEY = "AIzaSyBl1t15EoJCH0oIhZzsJbLRbWiWIYb3Li8";
 
-    private static final String API_KEY = "AIzaSyA-zQrBxeMqj-KT36HcZjY1cdjBf2ABaxM";
-
-    
-    //String placeId = "ChIJN1t_tDeuEmsRUsoyG83frY4";
-    //https://maps.googleapis.com/maps/api/place/radarsearch/json?location=51.503186,-0.126446&radius=5000&types=museum&key=YOUR_API_KEY
-    //https://maps.googleapis.com/maps/api/place/details/json?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4&key=YOUR_API_KEY
-    
     public static ArrayList<Place> autocomplete(String input) {
         ArrayList<Place> resultList = null;
 
@@ -96,8 +88,10 @@ public class PlacesService {
         return resultList;
     }
 
-    public static ArrayList<Place> search(String keyword, double latitud, double longitud, int radio) {
+    public static ArrayList<Place> search(String apiKey, double latitud, double longitud, int radio) {
         ArrayList<Place> resultList = null;
+        String types="food";
+        String name="cruise";
 
         HttpURLConnection conn = null;
         StringBuilder jsonResults = new StringBuilder();
@@ -105,12 +99,12 @@ public class PlacesService {
             StringBuilder sb = new StringBuilder(PLACES_API_BASE);
             sb.append(TYPE_SEARCH);
             sb.append(OUT_JSON);
-            sb.append("?sensor=false");
-            sb.append("&key=" + API_KEY);
-            sb.append("&keyword=" + URLEncoder.encode(keyword, "utf8"));
-            sb.append("&location=" + String.valueOf(latitud) + "," + String.valueOf(longitud));
+            sb.append("?location=" + String.valueOf(latitud) + "," + String.valueOf(longitud));
             sb.append("&radius=" + String.valueOf(radio));
-
+            sb.append("&types=" + String.valueOf(types));
+            sb.append("&name=" + String.valueOf(name));
+            sb.append("&key=" + apiKey);
+            
             URL url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
             InputStreamReader in = new InputStreamReader(conn.getInputStream());
@@ -135,28 +129,31 @@ public class PlacesService {
             JSONArray predsJsonArray = jsonObj.getJSONArray("results");
 
             resultList = new ArrayList<Place>(predsJsonArray.length());
+            ArrayList<Place> resultListD = new ArrayList<Place>(predsJsonArray.length());
+
             for (int i = 0; i < predsJsonArray.length(); i++) {
                 Place place = new Place();
-                place.reference = predsJsonArray.getJSONObject(i).getString("reference");
+                place.placeId = predsJsonArray.getJSONObject(i).getString("place_id");
                 place.name = predsJsonArray.getJSONObject(i).getString("name");
-                resultList.add(place);
+                resultList.add(details1(place.placeId,apiKey));
+                
             }
         } catch (JSONException e) {
         }
 
         return resultList;
     }
-
-    public static Place details(String reference) {
+   
+    public static Place details1(String placeId, String apiKey) {
         HttpURLConnection conn = null;
         StringBuilder jsonResults = new StringBuilder();
         try {
+        	
             StringBuilder sb = new StringBuilder(PLACES_API_BASE);
             sb.append(TYPE_DETAILS);
             sb.append(OUT_JSON);
-            sb.append("?sensor=false");
-            sb.append("&key=" + API_KEY);
-            sb.append("&reference=" + URLEncoder.encode(reference, "utf8"));
+            sb.append("?placeid="+placeId);
+            sb.append("&key=" + apiKey);
 
             URL url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
@@ -177,21 +174,41 @@ public class PlacesService {
             }
         }
 
+        HashMap<String,String> hours= new HashMap<>();
+        HashMap<String,Object> dayHours = new HashMap<>(); 
+        
         Place place = null;
         try {
             JSONObject jsonObj = new JSONObject(jsonResults.toString()).getJSONObject("result");
-
+            
             place = new Place();
-            place.icon = jsonObj.getString("icon");
             place.name = jsonObj.getString("name");
-            place.formatted_address = jsonObj.getString("formatted_address");
-            if (jsonObj.has("formatted_phone_number")) {
-                place.formatted_phone_number = jsonObj.getString("formatted_phone_number");
-            }
-            place.reviews = jsonObj.getJSONObject("reviews");
+            
+            JSONObject jsonOH = new JSONObject(jsonObj.getString("opening_hours"));
+            JSONArray jsonArray = jsonOH.getJSONArray("periods");
+            
+            for (int i = 1; i <= jsonArray.length(); i++) {
+            	String open = jsonArray.getJSONObject(i).getString("open");
+            	JSONObject jsonOpen = new JSONObject(open);
+            	
+            	String close = jsonArray.getJSONObject(i).getString("close");
+            	JSONObject jsonClose = new JSONObject(close);
+            	
+            	for (int j=0;j<24; j++){
+            		if (j>Integer.parseInt(jsonOpen.getString("time").substring(0,2)) && j<Integer.parseInt(jsonClose.getString("time").substring(0,2))){
+            			hours.put(String.valueOf(j), "true");
+            		}else{
+            			hours.put(String.valueOf(j), "false");
+            		}
+            	}
+            	dayHours.put(String.valueOf(i), hours);
+               }
+            
         } catch (JSONException e) {
         }
 
+        place.dayHours=dayHours;
         return place;
     }
+    
 }

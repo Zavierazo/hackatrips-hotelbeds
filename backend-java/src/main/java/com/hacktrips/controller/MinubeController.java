@@ -118,7 +118,7 @@ public class MinubeController {
             }
             ContaminationData contaminationData = contaminationService.getContaminationInterpolation(data.getLatitude(), data.getLongitude());
             if (contaminationData != null) {
-                data.setContaminationByHour(contaminationData.getContaminationByHour());
+                data.setContaminationByHour(contaminationData);
             }
         }
         Collections.sort(pois, new DistanceComparator());
@@ -163,7 +163,7 @@ public class MinubeController {
             }
             ContaminationData contaminationData = contaminationService.getContaminationInterpolation(data.getLatitude(), data.getLongitude());
             if (contaminationData != null) {
-                data.setContaminationByHour(contaminationData.getContaminationByHour());
+                data.setContaminationByHour(contaminationData);
             }
         }
         Collections.sort(pois, new DistanceComparator());

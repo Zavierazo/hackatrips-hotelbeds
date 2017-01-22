@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.hacktrips.config.contamination.ContaminationData;
 import com.hacktrips.model.minube.POIData;
 
 import lombok.Data;
@@ -32,6 +33,7 @@ public class CartoPostgreSQL {
 
 	private TypeSQL typeSQL;
 	private List<POIData> pois;
+	private Boolean subset = false;
 
 	public CartoPostgreSQL(String tableName, List<POIData> pois) {
 		this.tableName = tableName;
@@ -41,7 +43,7 @@ public class CartoPostgreSQL {
 	public String generateDataSet() {
 		if (TypeSQL.CREATE.equals(typeSQL)) {
 			prepareColumnsForCreate();
-			return createCmd();
+			return !subset ? createCmd() : createSubsetCmd();
 		} else if (TypeSQL.INSERT.equals(typeSQL)) {
 			prepareColumnsForInsert();
 			return insertCmd();
@@ -67,9 +69,19 @@ public class CartoPostgreSQL {
 			// can add more TODO add java queue....
 			queueToTables.clear();
 		} else {
-			for (Field field : fields) {
-				columns.put(field.getName(), field.getType());
+			if (subset) {
+				for (Field field : fields) {
+					if (field.getType().isAssignableFrom(ContaminationData.class)) {
+						columns.put(field.getName(), field.getType());
+						break;
+					}
+				}
+			} else {
+				for (Field field : fields) {
+					columns.put(field.getName(), field.getType());
+				}
 			}
+
 		}
 	}
 
@@ -82,8 +94,8 @@ public class CartoPostgreSQL {
 		// private Double distance;
 		// private Double prob;
 		// private Map<Integer, Double> contaminationByHour = new HashMap<>();
-		Map<String, Object> values = new HashMap<>();
 		for (POIData poi : pois) {
+			Map<String, Object> values = new HashMap<>();
 			values.put("id", poi.getId());
 			values.put("name", poi.getName());
 			values.put("latitude", poi.getLatitude());
@@ -91,6 +103,7 @@ public class CartoPostgreSQL {
 			values.put("picture_url", poi.getPicture_url());
 			values.put("distance", poi.getDistance());
 			values.put("prob", poi.getProb());
+			values.put("contaminationByHour", poi.getContaminationByHour());
 			valuesOfColumns.add(values);
 		}
 	}
@@ -105,10 +118,7 @@ public class CartoPostgreSQL {
 		for (String key : columns.keySet()) {
 			boolean skipColumn = false;
 			Class<?> type = columns.get(key);
-			if (type.isAssignableFrom(Map.class)) {
-				queueToTables.add(key);
-				skipColumn = true;
-			} else {
+			if (!key.equalsIgnoreCase("contaminationByHour")) {
 				str.append(key);
 				str.append(StringUtils.SPACE);
 				if (type.isAssignableFrom(Integer.class)) {
@@ -118,6 +128,12 @@ public class CartoPostgreSQL {
 				} else if (type.isAssignableFrom(Double.class)) {
 					str.append("decimal");
 				}
+				if (key.equalsIgnoreCase("id")){
+					str.append(StringUtils.SPACE);
+					str.append("PRIMARY KEY");
+				}
+			} else {
+				skipColumn = true;
 			}
 			if (++count < columns.size() && !skipColumn) {
 				str.append(",");
@@ -127,60 +143,144 @@ public class CartoPostgreSQL {
 		return str.toString();
 	}
 
+	private String createSubsetCmd() {
+		StringBuilder str = new StringBuilder();
+		str.append(CREATE_TABLE);
+		str.append(StringUtils.SPACE);
+		str.append(tableName);
+		str.append("(");
+		str.append("contaminationId integer PRIMARY KEY,");
+		str.append("hour integer,");
+		str.append("level decimal");
+		str.append(");");
+		return str.toString();
+	}
+
 	private String insertCmd() {
 		StringBuffer str = new StringBuffer();
 
-		for (Map<String, Object> mapValue : valuesOfColumns) {
+		if (subset) {
+			return generateSubset();
+		} else {
+			for (Map<String, Object> mapValue : valuesOfColumns) {
 
-			SortedSet<String> keys = new TreeSet<String>(mapValue.keySet());
+				SortedSet<String> keys = new TreeSet<String>(mapValue.keySet());
 
-			
-			str.append(StringUtils.SPACE);
-			str.append(INSERT_INTO);
-			str.append(StringUtils.SPACE);
-			str.append(tableName);
-			str.append("(");
-			int count = 0;
-			for (String keyValues : keys) {
-				//for (String key : columns.keySet()) {
-					//if (key.equalsIgnoreCase(keyValues)) {
-						str.append(keyValues);
+				str.append(StringUtils.SPACE);
+				str.append(INSERT_INTO);
+				str.append(StringUtils.SPACE);
+				str.append(tableName);
+				str.append("(");
+				int count = 0;
+				for (String columnId : keys) {
+
+					// Add all columns of entity
+					if (!subset && !columnId.equalsIgnoreCase("contaminationByHour")) {
+						str.append(columnId);
 						str.append(StringUtils.SPACE);
 						if (++count < mapValue.size()) {
 							str.append(",");
 						}
-					//}
-				//}
-			}
-			str.append(")");
-			str.append(StringUtils.SPACE);
-			str.append(VALUES);
-			str.append(StringUtils.SPACE);
-			str.append("(");
-			int count2 = 0;
-			for (String keyValues : keys) {
-				//for (String key : columns.keySet()) {
-					//if (key.equalsIgnoreCase(keyValues)) {
-				Object value = mapValue.get(keyValues);
-				if (value != null && value instanceof String) {
-					str.append("'");
-					str.append(value);
-					str.append("'");
-				} else {
-					if (value != null)
-						str.append(value);
-					else
-						str.append(0);
+					} else {
+						count++;
+					}
 				}
-						
+				str.append(")");
+				str.append(StringUtils.SPACE);
+				str.append(VALUES);
+				str.append(StringUtils.SPACE);
+				str.append("(");
+				int count2 = 0;
+				for (String columnId : keys) {
+					// for (String key : columns.keySet()) {
+					// if (key.equalsIgnoreCase(keyValues)) {
+					Object columnValue = mapValue.get(columnId);
+					if (!subset && !columnId.equalsIgnoreCase("contaminationByHour")) {
+						str.append(extractColumnValue(columnValue));
 						if (++count2 < mapValue.size()) {
 							str.append(",");
 						}
-					//}
-				//}
+					} else {
+						count2++;
+					}
+					// }
+					// }
+				}
+				str.append(StringUtils.SPACE);
+				str.append(");");
 			}
-			str.append(StringUtils.SPACE);
-			str.append(");");
+		}
+
+		return str.toString();
+	}
+
+	private String extractColumnValue(Object columnValue) {
+		StringBuilder str = new StringBuilder();
+		if (columnValue != null && columnValue instanceof String) {
+			str.append("'");
+			str.append(columnValue);
+			str.append("'");
+		} else {
+			if (columnValue != null)
+				str.append(columnValue);
+			else
+				str.append(0);
+		}
+		return str.toString();
+	}
+
+	private String generateSubset() {
+		StringBuffer str = new StringBuffer();
+		Integer id = 0;
+		for (Map<String, Object> mapValue : valuesOfColumns) {
+
+			SortedSet<String> keys = new TreeSet<String>(mapValue.keySet());
+
+			for (String columnId : keys) {
+				// for (String key : columns.keySet()) {
+				// if (key.equalsIgnoreCase(keyValues)) {
+				Object columnValue = mapValue.get(columnId);
+				if (columnValue instanceof Integer && columnId.equalsIgnoreCase("id")) {
+					id = (Integer) columnValue;
+				}
+			}
+
+			for (String columnId : keys) {
+				Object columnValue = mapValue.get(columnId);
+				// FIXME!!!! ¬¬ hackaton tips...
+				if (columnId.equalsIgnoreCase("contaminationByHour")) {
+					// Add child columns of subset
+					Object colValue = extractColumnValue(columnValue);
+					if (colValue instanceof ContaminationData) {
+						ContaminationData contamination = (ContaminationData) colValue;
+						for (Integer hour : contamination.getContaminationByHour().keySet()) {
+							str.append(StringUtils.SPACE);
+							str.append(INSERT_INTO);
+							str.append(StringUtils.SPACE);
+							str.append(tableName);
+							str.append("(");
+							// FIXME!!!! ¬¬ hackaton tips..
+							// Add child columns of subset
+							str.append("contaminationId,");
+							str.append("hour,");
+							str.append("level");
+							str.append(")");
+							str.append(StringUtils.SPACE);
+							str.append(VALUES);
+							str.append(StringUtils.SPACE);
+							str.append("(");
+							str.append(id);
+							str.append(",");
+							str.append(hour);
+							str.append(",");
+							str.append(contamination.getContaminationByHour().get(hour));
+							str.append(StringUtils.SPACE);
+							str.append(");");
+						}
+					}
+
+				}
+			}
 		}
 		return str.toString();
 	}

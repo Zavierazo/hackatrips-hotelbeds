@@ -5,10 +5,14 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.hacktrips.config.contamination.ContaminationData;
+
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @JsonInclude(Include.NON_NULL)
 @Data
+@NoArgsConstructor
 public class POIData {
     private Integer id;
     private String name;
@@ -21,5 +25,5 @@ public class POIData {
     private String picture_url;
     private Double distance;
     private Double prob;
-    private Map<Integer, Double> contaminationByHour = new HashMap<>();
+    private ContaminationData contaminationByHour;
 }
