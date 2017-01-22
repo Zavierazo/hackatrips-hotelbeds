@@ -10,8 +10,8 @@ export default{
         this.input;
         this.blob;
     },
-    init() {
-        const self = this;
+    init(cb) {
+        const self = this
 
         function startUserMedia(stream) {
             const audioContext = new AudioContext;
@@ -21,33 +21,37 @@ export default{
                 workerPath: 'demo'
             });
             console.log('Recorder initialised.', self.recorder);
+
+            if (typeof cb === 'function')
+                cb()
         }
 
-        navigator.mediaDevices.getUserMedia({audio: true}, startUserMedia, function (e) {
+        navigator.getUserMedia({audio: true}, startUserMedia, function (e) {
             console.log('No live audio input: ' + e);
         });
     },
     start() {
-        const self = this;
+        const self = this
 
-        self.recorder && self.recorder.record();
-        console.log('Recording...', self.recorder);
+        self.recorder && self.recorder.record()
+        console.log('Recording...', self.recorder)
     },
-    stop() {
-        const self = this;
+    stop(cb) {
+        const self = this
 
-        self.recorder && self.recorder.stop();
-        console.log('Stopped recording.', self.recorder);
+        self.recorder && self.recorder.stop()
+        console.log('Stopped recording.', self.recorder)
 
         self.recorder.exportWAV(function (blob) {
             console.log(blob, self.input)
 
             self.blob = blob
             self.recorder.clear()
-            self.recorder = undefined
+
+            cb()
         })
     },
-    send() {
+    send(cb) {
         const self = this;
 
         console.log(self.blob, typeof self.blob);
@@ -58,26 +62,25 @@ export default{
 
             const endPoint = 'https://speech.platform.bing.com/recognize'
 
-            axios.post(endPoint, qs.stringify({
-                'VERSION': '3.0',
-                'scenarios': 'ulm',
-                'appid': appId,
-                'locale': 'en-US',
-                'device.os': 'wp7',
-                'format': 'json',
-                'requestid': Guid.raw(),
-                'instanceid': '41265e54-8bbe-406a-b1c0-82f7147e2330'
-            }), {
+            axios.post(endPoint + '?' + qs.stringify({
+                    'version': '3.0',
+                    'scenarios': 'ulm',
+                    'appid': appId,
+                    'locale': 'es-ES',
+                    'device.os': 'wp7',
+                    'format': 'json',
+                    'requestid': Guid.raw(),
+                    'instanceid': '41265e54-8bbe-406a-b1c0-82f7147e2330'
+                }), self.blob, {
                 headers: {
                     'Authorization': 'Bearer ' + accessToken,
                     'Content-Type': 'audio/wav; samplerate=16000'
                     //'Content-Length': self.blob.size
-                },
-                data: self.blob
+                }
             }).then((response) => {
-                console.log(response)
+                cb(response.data)
             }).catch((error) => {
-                console.log(error)
+                cb(error)
             })
         }).catch((error) => {
             console.error(error)

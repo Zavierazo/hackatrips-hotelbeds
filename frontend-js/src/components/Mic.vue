@@ -1,7 +1,7 @@
 <template>
     <div class="mic">
-        <div class="mic__icon" data-function="record--box">
-            <svg @click="record" data-function="record" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 57 57" style="enable-background:new 0 0 57 57;" xml:space="preserve">
+        <div @mousedown="startRecording" @mouseup="stopRecording" class="mic__icon" data-function="record--box">
+            <svg data-function="record" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 57 57" style="enable-background:new 0 0 57 57;" xml:space="preserve">
                 <path style="fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" d="M43.5,28v6 c0,8.271-6.729,15-15,15s-15-6.729-15-15v-6"></path>
                 <path style="fill:#C7CAC7;" d="M28.5,44L28.5,44c-5.5,0-10-4.5-10-10V10c0-5.5,4.5-10,10-10h0c5.5,0,10,4.5,10,10v24 C38.5,39.5,34,44,28.5,44z"></path>
                 <line style="fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;" x1="28.5" y1="49" x2="28.5" y2="56"></line>
@@ -11,7 +11,8 @@
         </div>
         <div class="mic__bottom">
             <label for="mic-search" class="mic__caption">Mantén pulsado para grabar o introduce tu búsqueda</label>
-            <input data-function="input-search" type="text" @input="autosuggest" ref="micSearch" id="mic-search" class="mic__input"
+            <input data-function="input-search" type="text" @input="autosuggest" ref="micSearch" id="mic-search"
+                   class="mic__input"
                    placeholder="¿Dónde quieres ir?">
             <ul class="mic__resultlist" ref="autosuggestResults">
             </ul>
@@ -44,22 +45,22 @@
         &__bottom {
             text-align: center;
         }
-         &__resultlist{
-              width : 60%;
-              margin : 0 auto;
-              text-align : left;
-              max-width :1000px;
-              padding : 0;
-            li{
-                cursor : pointer;
-                padding :15px;
+        &__resultlist {
+            width: 60%;
+            margin: 0 auto;
+            text-align: left;
+            max-width: 1000px;
+            padding: 0;
+            li {
+                cursor: pointer;
+                padding: 15px;
                 background: rgba(244, 67, 54, 0.80);
                 border-top: 2px solid white;
                 color: white;
             }
         }
         &__input {
-             padding: 15px;
+            padding: 15px;
             font-size: 16px;
             width: 30%;
 
@@ -70,12 +71,12 @@
             &:focus {
                 outline: 0;
 
-             }
+            }
 
-         }
-        &__caption{
-             display : block;
-             margin : 20px;
+        }
+        &__caption {
+            display: block;
+            margin: 20px;
             color: #333;
             text-align: center;
             font-size: 24px;
@@ -93,9 +94,18 @@
 <script>
     import anime from 'animejs'
     import textInput from '../services/textInput'
+    import audioInput from '../services/audioInput'
 
     export default {
+        data() {
+            return {
+            }
+        },
         props: ['value', 'placeholder'],
+        created: function () {
+            this.$data.audioInput = audioInput
+            this.$data.audioInput.init()
+        },
         mounted: function () {
             const durationEffect = 1500;
             const recordBox = document.querySelector("[data-function='record--box']");
@@ -196,7 +206,36 @@
 //          })
         },
         methods: {
-            record: function () {
+            startRecording: function () {
+                this.$data.audioInput.init(() => {
+                    this.$data.audioInput.start()
+                })
+            },
+            stopRecording: function () {
+                this.$data.audioInput.stop(() => {
+                    this.$data.audioInput.send((data) => {
+                        if (typeof data.results !== 'undefined' && data.results.length > 0) {
+                            console.log('speech recognition result', data.results)
+
+                            textInput.send(data.results[0].name).then( (response) => {
+                                if (typeof response.data !== 'undefined' && response.data.length > 0) {
+                                    const result = response.data[0]
+
+                                    console.log('textSearch result', result)
+
+                                    this.$router.push({
+                                        name: 'results',
+                                        params: {
+                                            text: result.city_name,
+                                            latitude: result.latitude,
+                                            longitude: result.longitude
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                })
             },
             performSearch: function(ev) {
                 const target = ev.target

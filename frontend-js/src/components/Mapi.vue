@@ -74,13 +74,12 @@
         mounted: function () {
             this.setCaption(this.$data.locationCaption)
 
-            var map=L.map('map', {center: [this.$data.latitude,this.$data.longitude],zoom:10});
+            var map=L.map('map', {center: [this.$data.latitude,this.$data.longitude],zoom:12});
             L.tileLayer('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
                 attribution:'The crack team'
             }).addTo(map);
 
             var clusterSQL = "SELECT * FROM data_group06_mass;";
-
 
             cartodb.createLayer(map, {
                 user_name:'hackatrips11',
