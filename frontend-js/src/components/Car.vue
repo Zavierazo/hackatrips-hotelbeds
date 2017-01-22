@@ -25,11 +25,17 @@
             <h3>Comparte con alguien</h3>
 
             <ul ref="bookingList">
-                <li v-for="booking in bookingList">
+                <li v-for="booking in bookingList" :data-id="booking.id">
                     <span v-html="booking.origen"></span>
-                    <svg class="arrowIcon" width="1792" height="1792" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1728 893q0 14-10 24l-384 354q-16 14-35 6-19-9-19-29v-224h-1248q-14 0-23-9t-9-23v-192q0-14 9-23t23-9h1248v-224q0-21 19-29t35 5l384 350q10 10 10 23z"/></svg>
+                    <svg class="arrowIcon" width="1792" height="1792" viewBox="0 0 1792 1792"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1728 893q0 14-10 24l-384 354q-16 14-35 6-19-9-19-29v-224h-1248q-14 0-23-9t-9-23v-192q0-14 9-23t23-9h1248v-224q0-21 19-29t35 5l384 350q10 10 10 23z"/>
+                    </svg>
                     <span v-html="booking.destino"></span>
-                    {{ booking }}
+
+                    <span><span v-html="booking.hour"></span>:00</span>
+
+                    <span v-html="booking.paxes"></span>
                 </li>
             </ul>
         </div>
@@ -42,9 +48,10 @@
     }
 
     input {
-        margin-bottom : 40px;width: 45%;
+        margin-bottom: 40px;
+        width: 45%;
         margin-right: 10%;
-        float : left;
+        float: left;
 
         box-sizing: border-box;
         &:last-of-type {
@@ -113,7 +120,15 @@
             const endPoint = 'http://127.0.0.1:8080/cabify/bookingList'
 
             axios.get(endPoint).then((response) => {
-                this.$data.bookingList = response.data
+                var bookings = []
+
+                response.data.forEach( (item) => {
+                    if ((4-item.paxes) > 0) {
+                        bookings.push(item)
+                    }
+                })
+
+                this.$data.bookingList = bookings
             })
         },
         methods: {
@@ -141,5 +156,4 @@
             }
         }
     }
-
 </script>
